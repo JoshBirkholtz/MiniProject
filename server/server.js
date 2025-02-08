@@ -22,19 +22,25 @@ app.use(cookieParser());
 // Register route
 app.post('/api/register', async (req, res) => {
     try {
-        const { email, password, name, age, budgetPreference, gender, eventCategories } = req.body;
-        const role = 'visitor'; // Default role for new registrations
+        // Get the ID token from the request headers
+        const idToken = req.headers.authorization?.split('Bearer ')[1];
+        if (!idToken) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
 
-        const userRecord = await admin.auth().createUser({
-            email,
-            password,
-            displayName: name,
-        });
+        // Verify the ID token first
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const uid = decodedToken.uid;
+
+        // Get user data from request body
+        const { name, email, age, gender, budgetPreference, eventCategories } = req.body;
+        const role = 'visitor';
 
         // Set custom claims for role-based auth
-        await admin.auth().setCustomUserClaims(userRecord.uid, { role });
+        await admin.auth().setCustomUserClaims(uid, { role });
 
-        await admin.firestore().collection('users').doc(userRecord.uid).set({
+        // Store additional user data in Firestore
+        await admin.firestore().collection('users').doc(uid).set({
             name,
             email,
             age,
@@ -45,6 +51,18 @@ app.post('/api/register', async (req, res) => {
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
+        // Set session cookie
+        const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
+        const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
+        
+        const options = {
+            maxAge: expiresIn,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        };
+        
+        res.cookie('session', sessionCookie, options);
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         console.error('Registration Error:', error);

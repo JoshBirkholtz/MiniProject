@@ -80,36 +80,66 @@ function AuthenticationForm(props: PaperProps) {
         setError('');
         setLoading(true);
         try {
-            // First authenticate with Firebase
-            const userCredential = type === 'register' 
-                ? await createUserWithEmailAndPassword(auth, values.email, values.password)
-                : await signInWithEmailAndPassword(auth, values.email, values.password);
-            
-            // Get the ID token
-            const idToken = await userCredential.user.getIdToken();
-            
-            // Send the token to your backend
-            const response = await fetch(`http://localhost:5500/api/${type}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${idToken}`
-                },
-                credentials: 'include', // Important for cookies
-                body: JSON.stringify(values)
-            });
-    
-            if (!response.ok) {
-                throw new Error('Authentication failed');
+            if (type === 'register') {
+                // First create the user in Firebase
+                const userCredential = await createUserWithEmailAndPassword(
+                    auth, 
+                    values.email, 
+                    values.password
+                );
+                
+                // Get the ID token
+                const idToken = await userCredential.user.getIdToken();
+                
+                // Send additional user data to your backend
+                const response = await fetch('http://localhost:5500/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: values.email,
+                        name: values.name,
+                        age: values.age,
+                        gender: values.gender,
+                        budgetPreference: values.budgetPreference,
+                        eventCategories: values.eventCategories
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Registration failed');
+                }
+            } else {
+                // Login flow
+                const userCredential = await signInWithEmailAndPassword(
+                    auth, 
+                    values.email, 
+                    values.password
+                );
+                
+                const idToken = await userCredential.user.getIdToken();
+                
+                const response = await fetch('http://localhost:5500/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Login failed');
+                }
             }
-    
-            const data = await response.json();
-            
+
             // If successful, redirect to home page
-            if (data.message === 'Login successful' || data.message === 'User registered successfully') {
-                navigate('/');
-            }
+            navigate('/');
         } catch (err) {
+            console.error('Auth Error:', err);
             setError(err instanceof Error ? err.message : 'Authentication failed');
         } finally {
             setLoading(false);
