@@ -21,39 +21,46 @@ const formatFirebaseTimestamp = (timestamp) => {
 
 function EventCard({ event }) {
     const navigate = useNavigate();
-    const { currentUser } = useAuth();
+    const { currentUser, checkSession } = useAuth();
     const { name, description, date, location, maxAttendees, currentAttendees, status } = event;
     const [isRsvping, setIsRsvping] = useState(false);
 
     const handleRSVP = async () => {
         if (!currentUser) {
-            // Redirect to login if user is not authenticated
-            navigate('/login');
-            return;
+            // Check session before redirecting
+            const isValid = await checkSession();
+            if (!isValid) {
+                navigate('/login');
+                return;
+            }
         }
 
         setIsRsvping(true);
         try {
             const idToken = await currentUser.getIdToken();
             const response = await axios.post(
-                `http://localhost:5500/api/events/${id}/rsvp`,
+                `http://localhost:5500/api/events/${event.id}/rsvp`,
                 {},
                 {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
-                    }
+                    },
+                    withCredentials: true // Important for cookies
                 }
             );
 
             if (response.data.message === 'RSVP successful') {
-                // Optionally update the UI to show success
                 alert('Successfully RSVP\'d to event!');
                 // You might want to update the event's attendee count locally
                 event.currentAttendees += 1;
             }
         } catch (error) {
             console.error('RSVP Error:', error);
-            alert(error.response?.data?.error || 'Failed to RSVP for event');
+            if (error.response?.status === 401) {
+                navigate('/login');
+            } else {
+                alert(error.response?.data?.error || 'Failed to RSVP for event');
+            }
         } finally {
             setIsRsvping(false);
         }

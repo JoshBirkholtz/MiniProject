@@ -6,6 +6,7 @@ import NavBar from "./components/navbar/nav-bar"
 import AuthenticationPage from "./pages/AuthenticationPage"
 import '@mantine/core/styles.css'
 import { MantineProvider } from '@mantine/core'
+import { AuthProvider } from "./contexts/AuthContext"
 
 // Create a wrapper component to use useLocation
 const AppContent = () => {
@@ -24,25 +25,16 @@ const AppContent = () => {
 }
 
 function App() {
-  const fetchAPI = async () => {
-    try {
-      const response = await axios.get("http://localhost:5500/api")
-      console.log(response.data)
-    } catch (error) {
-      console.error("Error fetching API:", error)
-    }
-  }
-
-  useEffect(() => {
-    fetchAPI()
-  }, [])
 
   return (
-    <MantineProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </MantineProvider>
+    <AuthProvider>
+      <MantineProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </MantineProvider>
+    </AuthProvider>
+    
   )
 }
 

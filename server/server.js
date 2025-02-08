@@ -1,8 +1,12 @@
 // server.js
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const corsOptions = {
-    origin: ["http://localhost:5173"]
+    origin: "http://localhost:5173",
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 const admin = require('./config/firebase-config');
 const { authenticateUser, isAdmin } = require('./middleware/auth');
@@ -13,6 +17,7 @@ const app = express();
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 
 // Register route
 app.post('/api/register', async (req, res) => {
@@ -50,22 +55,70 @@ app.post('/api/register', async (req, res) => {
 // Login route
 app.post('/api/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        // Get the ID token from the request headers
+        const idToken = req.headers.authorization?.split('Bearer ')[1];
+        if (!idToken) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
 
-        // Sign in with Firebase Auth
-        const userCredential = await admin.auth().getUserByEmail(email);
+        // Verify the ID token first
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+
+        // Only process if the user just signed in in the last 5 minutes
+        if (new Date().getTime() / 1000 - decodedToken.auth_time < 5 * 60) {
+            // Set session expiration to 5 days
+            const expiresIn = 60 * 60 * 24 * 5 * 1000;
+
+            // Create the session cookie
+            const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
+
+            // Set cookie options
+            const options = {
+                maxAge: expiresIn,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict'
+            };
+
+            res.cookie('session', sessionCookie, options);
+            res.json({ message: 'Login successful' });
+        } else {
+            res.status(401).json({ error: 'Recent sign in required!' });
+        }
+    } catch (error) {
+        console.error('Login Error:', error);
+        res.status(401).json({ error: 'Invalid token' });
+    }
+});
+
+// Session Check
+app.get('/api/check-session', async (req, res) => {
+    try {
+        const sessionCookie = req.cookies.session;
+        if (!sessionCookie) {
+            return res.json({ valid: false });
+        }
+
+        const decodedClaims = await admin.auth()
+            .verifySessionCookie(sessionCookie, true);
 
         res.json({
+            valid: true,
             user: {
-                uid: userCredential.uid,
-                email: userCredential.email,
-                displayName: userCredential.displayName
+                uid: decodedClaims.uid,
+                email: decodedClaims.email,
+                role: decodedClaims.role
             }
         });
     } catch (error) {
-        console.error('Login Error:', error);
-        res.status(500).json({ error: 'Login failed' });
+        res.json({ valid: false });
     }
+});
+
+// Logout
+app.post('/api/logout', (req, res) => {
+    res.clearCookie('session');
+    res.json({ message: 'Logged out successfully' });
 });
 
 // Public Routes -> Get all events

@@ -25,6 +25,9 @@ import { upperFirst, useToggle } from '@mantine/hooks';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Replace useRouter from Next.js
 import React from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '../../config/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 const genders = ['Male', 'Female', 'Prefer not to say'];
 
@@ -77,21 +80,35 @@ function AuthenticationForm(props: PaperProps) {
         setError('');
         setLoading(true);
         try {
+            // First authenticate with Firebase
+            const userCredential = type === 'register' 
+                ? await createUserWithEmailAndPassword(auth, values.email, values.password)
+                : await signInWithEmailAndPassword(auth, values.email, values.password);
+            
+            // Get the ID token
+            const idToken = await userCredential.user.getIdToken();
+            
+            // Send the token to your backend
             const response = await fetch(`http://localhost:5500/api/${type}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`
                 },
+                credentials: 'include', // Important for cookies
                 body: JSON.stringify(values)
             });
-
+    
             if (!response.ok) {
                 throw new Error('Authentication failed');
             }
-
+    
             const data = await response.json();
-            navigate('/');
-
+            
+            // If successful, redirect to home page
+            if (data.message === 'Login successful' || data.message === 'User registered successfully') {
+                navigate('/');
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Authentication failed');
         } finally {
