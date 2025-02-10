@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
 import { IconLogout, IconUser } from '@tabler/icons-react'
@@ -11,6 +11,18 @@ const Navbar: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { currentUser, checkSession } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin when component mounts
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+        if (!currentUser) return;
+        const token = await currentUser.getIdTokenResult();
+        setIsAdmin(token.claims?.role === 'admin');
+    };
+
+    checkAdminStatus();
+}, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -36,30 +48,30 @@ const Navbar: React.FC = () => {
               </Link>
             </div>
             <div className="hidden md:flex items-center space-x-1">
-              <Link
-                to="/"
-                className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-              >
-                Home
-              </Link>
-              <Link
-                to="/my-events"
-                className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-              >
-                My Events
-              </Link>
-              <Link
-                to="/services"
-                className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-              >
-                Services
-              </Link>
-              <Link
-                to="/contact"
-                className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-              >
-                Contact
-              </Link>
+              { isAdmin ? (
+                <Link
+                  to="/my-events"
+                  className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
+                >
+                  All Events
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/"
+                    className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
+                  >
+                    Home
+                  </Link>
+                  <Link
+                    to="/my-events"
+                    className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
+                  >
+                    My Events
+                  </Link>
+                </>
+              )}
+              
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-3">

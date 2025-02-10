@@ -7,19 +7,25 @@ const MyEventsPage = () => {
     const [myEvents, setMyEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const { currentUser } = useAuth();
+
+    // Check if user is admin when component mounts
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            if (!currentUser) return;
+            const token = await currentUser.getIdTokenResult();
+            setIsAdmin(token.claims?.role === 'admin');
+        };
+
+        checkAdminStatus();
+    }, [currentUser]);
 
     useEffect(() => {
         const fetchEvents = async () => {
             if (!currentUser) return;
     
             try {
-                // Force refresh the token to get updated claims
-                await currentUser.getIdToken(true);
-                const decodedToken = await currentUser.getIdTokenResult();
-                const isAdmin = decodedToken.claims?.role === 'admin';
-                console.log('Is Admin:', isAdmin);
-    
                 const idToken = await currentUser.getIdToken();
                 const endpoint = isAdmin ? 
                     'http://localhost:5500/api/admin/events' : 
@@ -50,8 +56,8 @@ const MyEventsPage = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-2xl font-bold mb-6">
-                {currentUser?.getIdTokenResult()?.claims?.role === 'admin' ? 
-                    'All Events (Admin View)' : 'My Events'}
+                {isAdmin ? 
+                    'All Events' : 'My Events'}
             </h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {myEvents.map(event => (

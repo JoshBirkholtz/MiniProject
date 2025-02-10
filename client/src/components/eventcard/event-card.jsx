@@ -1,5 +1,5 @@
 import { Card, Image, Text, Badge, Button, Group, Divider } from '@mantine/core';
-import { IconMapPin, IconCalendar, IconCalendarStats, IconCalendarX } from '@tabler/icons-react';
+import { IconMapPin, IconCalendar, IconCalendarStats, IconCalendarX, IconEdit } from '@tabler/icons-react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
@@ -28,15 +28,27 @@ const formatFirebaseDateTime = (timestamp) => {
 function EventCard({ event }) {
     const navigate = useNavigate();
     const { currentUser, checkSession } = useAuth();
+    const [isAdmin, setIsAdmin] = useState(false);
     const { name, description, startDate, endDate, location, maxAttendees, currentAttendees, status } = event;
     const [isRsvping, setIsRsvping] = useState(false);
     const [hasRSVPd, setHasRSVPd] = useState(false);
     const [isCanceling, setIsCanceling] = useState(false);
 
+    // Check if user is admin when component mounts
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            if (!currentUser) return;
+            const token = await currentUser.getIdTokenResult();
+            setIsAdmin(token.claims?.role === 'admin');
+        };
+
+        checkAdminStatus();
+    }, [currentUser]);
+
     // Check if user has RSVP'd when component mounts
     useEffect(() => {
         const checkRSVPStatus = async () => {
-            if (!currentUser) return;
+            if (!currentUser || isAdmin) return;
 
             try {
                 const idToken = await currentUser.getIdToken();
@@ -56,7 +68,7 @@ function EventCard({ event }) {
         };
 
         checkRSVPStatus();
-    }, [currentUser, event.id]);
+    }, [currentUser, event.id, isAdmin]);
 
     const handleRSVP = async () => {
         if (!currentUser) {
@@ -130,6 +142,11 @@ function EventCard({ event }) {
         }
     };
 
+    const handleEditEvent = () => {
+        // Navigate to edit event page or open edit modal
+        navigate(`/admin/events/edit/${event.id}`);
+    };
+
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section>
@@ -178,21 +195,36 @@ function EventCard({ event }) {
                 
             </Group>
 
-            <Button
-                color={hasRSVPd ? "red" : "blue"}
-                fullWidth
-                mt="md"
-                radius="md"
-                disabled={currentAttendees >= maxAttendees || isRsvping || isCanceling}
-                onClick={hasRSVPd ? handleCancelRSVP : handleRSVP}
-                loading={isRsvping || isCanceling}
-            >
-                {isRsvping ? 'Reserving...' : 
-                isCanceling ? 'Canceling...' :
-                hasRSVPd ? 'Cancel RSVP' :
-                currentAttendees >= maxAttendees ? 'Event Full' : 
-                'RSVP Now'}
-            </Button> 
+            {isAdmin ? (
+                // Admin sees Edit button
+                <Button
+                    color="yellow"
+                    fullWidth
+                    mt="md"
+                    radius="md"
+                    leftSection={<IconEdit size={16} />}
+                    onClick={handleEditEvent}
+                >
+                    Edit Event
+                </Button>
+            ) : (
+                // Regular users see RSVP button
+                <Button
+                    color={hasRSVPd ? "red" : "blue"}
+                    fullWidth
+                    mt="md"
+                    radius="md"
+                    disabled={currentAttendees >= maxAttendees || isRsvping || isCanceling}
+                    onClick={hasRSVPd ? handleCancelRSVP : handleRSVP}
+                    loading={isRsvping || isCanceling}
+                >
+                    {isRsvping ? 'Reserving...' : 
+                    isCanceling ? 'Canceling...' :
+                    hasRSVPd ? 'Cancel RSVP' :
+                    currentAttendees >= maxAttendees ? 'Event Full' : 
+                    'RSVP Now'}
+                </Button>
+            )} 
 
         </Card>
     );
