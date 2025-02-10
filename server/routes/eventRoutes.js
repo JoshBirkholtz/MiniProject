@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticateUser } = require('../middleware/auth');
 const EventModel = require('../models/eventModel');
+const RSVPModel = require('../models/rsvpModel');
 
 // Get all events (public route)
 router.get('/', async (req, res) => {
@@ -24,6 +25,34 @@ router.post('/:eventId/rsvp', authenticateUser, async (req, res) => {
         res.json({ message: 'RSVP successful' });
     } catch (error) {
         console.error('RSVP Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Cancel RSVP
+router.delete('/:eventId/rsvp/cancel', authenticateUser, async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const userId = req.user.uid;
+        
+        await RSVPModel.cancelRSVP(eventId, userId);
+        res.json({ message: 'RSVP cancelled' });
+    } catch (error) {
+        console.error('Cancel RSVP Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Check if user has RSVP'd to an event
+router.get('/:eventId/check-rsvp', authenticateUser, async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const userId = req.user.uid;
+        
+        const hasRSVP = await RSVPModel.checkUserRSVP(userId, eventId);
+        res.json({ hasRSVP });
+    } catch (error) {
+        console.error('Check RSVP Error:', error);
         res.status(500).json({ error: error.message });
     }
 });

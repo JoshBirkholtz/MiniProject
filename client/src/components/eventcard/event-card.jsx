@@ -2,7 +2,7 @@ import { Card, Image, Text, Badge, Button, Group } from '@mantine/core';
 import { IconMapPin, IconCalendar } from '@tabler/icons-react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -24,6 +24,34 @@ function EventCard({ event }) {
     const { currentUser, checkSession } = useAuth();
     const { name, description, date, location, maxAttendees, currentAttendees, status } = event;
     const [isRsvping, setIsRsvping] = useState(false);
+    const [hasRSVPd, setHasRSVPd] = useState(false);
+    const [isCanceling, setIsCanceling] = useState(false);
+
+    // Check if user has RSVP'd when component mounts
+    useEffect(() => {
+        const checkRSVPStatus = async () => {
+            if (!currentUser) return;
+
+            try {
+                const idToken = await currentUser.getIdToken();
+                const response = await axios.get(
+                    `http://localhost:5500/api/events/${event.id}/check-rsvp`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${idToken}`
+                        },
+                        withCredentials: true
+                    }
+                );
+                setHasRSVPd(response.data.hasRSVP);
+                console.log(response);
+            } catch (error) {
+                console.error('Check RSVP Error:', error);
+            }
+        };
+
+        checkRSVPStatus();
+    }, [currentUser, event.id]);
 
     const handleRSVP = async () => {
         if (!currentUser) {
@@ -51,6 +79,7 @@ function EventCard({ event }) {
 
             if (response.data.message === 'RSVP successful') {
                 alert('Successfully RSVP\'d to event!');
+                setHasRSVPd(true);
                 // You might want to update the event's attendee count locally
                 event.currentAttendees += 1;
             }
@@ -63,6 +92,36 @@ function EventCard({ event }) {
             }
         } finally {
             setIsRsvping(false);
+        }
+    };
+
+    const handleCancelRSVP = async () => {
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+    
+        setIsCanceling(true);
+        try {
+            const idToken = await currentUser.getIdToken();
+            const response = await axios.delete(
+                `http://localhost:5500/api/events/${event.id}/rsvp/cancel`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    withCredentials: true
+                }
+            );
+    
+            if (response.data.message === 'RSVP cancelled') {
+                setHasRSVPd(false);
+                event.currentAttendees += 1;
+            }
+        } catch (error) {
+            console.error('Cancel RSVP Error:', error);
+        } finally {
+            setIsCanceling(false);
         }
     };
 
@@ -97,17 +156,21 @@ function EventCard({ event }) {
             </Group>
 
             <Button
-                color="blue"
+                color={hasRSVPd ? "red" : "blue"}
                 fullWidth
                 mt="md"
                 radius="md"
-                disabled={currentAttendees >= maxAttendees || isRsvping}
-                onClick={handleRSVP}
-                loading={isRsvping}
+                disabled={currentAttendees >= maxAttendees || isRsvping || isCanceling}
+                onClick={hasRSVPd ? handleCancelRSVP : handleRSVP}
+                loading={isRsvping || isCanceling}
             >
                 {isRsvping ? 'Reserving...' : 
-                 currentAttendees >= maxAttendees ? 'Event Full' : 'RSVP Now'}
-            </Button>
+                isCanceling ? 'Canceling...' :
+                hasRSVPd ? 'Cancel RSVP' :
+                currentAttendees >= maxAttendees ? 'Event Full' : 
+                'RSVP Now'}
+            </Button> 
+
         </Card>
     );
 }

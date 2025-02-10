@@ -67,6 +67,22 @@ class AuthController {
             res.status(401).json({ error: 'Invalid token' });
         }
     }
+
+    static async logout(req, res) {
+        try {
+            // Clear the session cookie
+            res.clearCookie('session', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict'
+            });
+            
+            res.json({ message: 'Logged out successfully' });
+        } catch (error) {
+            console.error('Logout Error:', error);
+            res.status(500).json({ error: 'Logout failed' });
+        }
+    }
 }
 
 module.exports = AuthController;

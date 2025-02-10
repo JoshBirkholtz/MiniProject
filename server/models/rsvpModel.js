@@ -63,26 +63,68 @@ class RSVPModel {
         }
     }
 
-    static async cancelRSVP(rsvpId) {
+    static async getRSVP(userId, eventId) {
         try {
-            const rsvpRef = db.collection('rsvps').doc(rsvpId);
-            const rsvp = await rsvpRef.get();
+            const snapshot = await db.collection('rsvps')
+                .where('userId', '==', userId)
+                .where('eventId', '==', eventId)
+                .limit(1)
+                .get();
+            
+            if (snapshot.empty) {
+                return null;
+            }
+            
+            const doc = snapshot.docs[0];
+            return {
+                id: doc.id,
+                ...doc.data()
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
 
-            if (!rsvp.exists) {
+    static async deleteRSVP(userId, eventId) {
+        try {
+            const rsvp = await this.getRSVP(userId, eventId);
+            if (!rsvp) {
                 throw new Error('RSVP not found');
             }
 
+            await db.collection('rsvps').doc(rsvp.id).delete();
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async cancelRSVP(eventId, userId) {
+        try {
+            const rsvp = await this.getRSVP(userId, eventId);
+            if (!rsvp) {
+                throw new Error('RSVP not found');
+            }
+    
             await db.runTransaction(async (transaction) => {
-                // Decrement the event's currentAttendees
-                const eventRef = db.collection('events').doc(rsvp.data().eventId);
+                // Get event reference
+                const eventRef = db.collection('events').doc(eventId);
+                const eventDoc = await transaction.get(eventRef);
+                
+                if (!eventDoc.exists) {
+                    throw new Error('Event not found');
+                }
+
+                // Update event attendee count
                 transaction.update(eventRef, {
                     currentAttendees: admin.firestore.FieldValue.increment(-1)
                 });
-
-                // Delete the RSVP
+    
+                // Delete the RSVP document
+                const rsvpRef = db.collection('rsvps').doc(rsvp.id);
                 transaction.delete(rsvpRef);
             });
-
+    
             return true;
         } catch (error) {
             throw error;
