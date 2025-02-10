@@ -1,28 +1,34 @@
-import { Card, Image, Text, Badge, Button, Group } from '@mantine/core';
-import { IconMapPin, IconCalendar } from '@tabler/icons-react';
+import { Card, Image, Text, Badge, Button, Group, Divider } from '@mantine/core';
+import { IconMapPin, IconCalendar, IconCalendarStats, IconCalendarX } from '@tabler/icons-react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
-const formatFirebaseTimestamp = (timestamp) => {
-    if (!timestamp) return 'Date TBA';
+const formatFirebaseDateTime = (timestamp) => {
+    if (!timestamp) return { date: 'TBA', time: 'TBA' };
     const date = new Date(timestamp._seconds * 1000);
-    return date.toLocaleString('en-ZA', {
+    
+    const formattedDate = date.toLocaleDateString('en-ZA', {
         day: 'numeric',
         month: 'long',
-        year: 'numeric',
+        year: 'numeric'
+    });
+    
+    const formattedTime = date.toLocaleTimeString('en-ZA', {
         hour: '2-digit',
         minute: '2-digit',
         timeZone: 'Africa/Johannesburg'
     });
+
+    return { date: formattedDate, time: formattedTime };
 };
 
 function EventCard({ event }) {
     const navigate = useNavigate();
     const { currentUser, checkSession } = useAuth();
-    const { name, description, date, location, maxAttendees, currentAttendees, status } = event;
+    const { name, description, startDate, endDate, location, maxAttendees, currentAttendees, status } = event;
     const [isRsvping, setIsRsvping] = useState(false);
     const [hasRSVPd, setHasRSVPd] = useState(false);
     const [isCanceling, setIsCanceling] = useState(false);
@@ -44,7 +50,6 @@ function EventCard({ event }) {
                     }
                 );
                 setHasRSVPd(response.data.hasRSVP);
-                console.log(response);
             } catch (error) {
                 console.error('Check RSVP Error:', error);
             }
@@ -152,7 +157,25 @@ function EventCard({ event }) {
             </Group>
             <Group gap="xs" mt="xs">
                 <IconCalendar size={24} style={{ color: 'gray' }} />
-                <Text size="sm">{formatFirebaseTimestamp(date)}</Text>
+                <Text size="sm">
+                    {formatFirebaseDateTime(startDate).date}
+                </Text>
+            </Group>
+            <Group gap="xs" mt="xs" justify='space-between'>
+                <Group gap="xs">
+                    <IconCalendarStats size={24} style={{ color: 'gray' }}></IconCalendarStats>
+                    <Text size="sm"> 
+                        {formatFirebaseDateTime(startDate).time}
+                    </Text>
+                </Group>
+                
+                <Group gap="xs">
+                    <IconCalendarX size={24} style={{ color: 'gray' }}></IconCalendarX>
+                    <Text size="sm"> 
+                        {formatFirebaseDateTime(endDate).time}
+                    </Text>
+                </Group>
+                
             </Group>
 
             <Button

@@ -22,8 +22,15 @@ class EventModel {
 
     static async createEvent(eventData) {
         try {
+            // Ensure both start and end dates are provided
+            if (!eventData.startDate || !eventData.endDate) {
+                throw new Error('Both start and end dates are required');
+            }
+
             const eventRef = await db.collection('events').add({
                 ...eventData,
+                startDate: admin.firestore.Timestamp.fromDate(new Date(eventData.startDate)),
+                endDate: admin.firestore.Timestamp.fromDate(new Date(eventData.endDate)),
                 currentAttendees: 0,
                 status: 'active',
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
