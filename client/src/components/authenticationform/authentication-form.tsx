@@ -92,7 +92,7 @@ function AuthenticationForm(props: PaperProps) {
                 const idToken = await userCredential.user.getIdToken();
                 
                 // Send additional user data to your backend
-                const response = await fetch('http://localhost:5500/api/register', {
+                const response = await fetch('http://localhost:5500/api/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ function AuthenticationForm(props: PaperProps) {
                 
                 const idToken = await userCredential.user.getIdToken();
                 
-                const response = await fetch('http://localhost:5500/api/login', {
+                const response = await fetch('http://localhost:5500/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -256,7 +256,7 @@ function AuthenticationForm(props: PaperProps) {
                             ? 'Already have an account? Login'
                             : "Don't have an account? Register"}
                     </Anchor>
-                    <Button type="submit" radius="xl">
+                    <Button type="submit" radius="xl" loading={loading}>
                         {upperFirst(type)}
                     </Button>
                 </Group>

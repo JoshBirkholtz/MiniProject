@@ -32,7 +32,7 @@ const Navbar: React.FC = () => {
           <div className="flex space-x-7">
             <div>
               <Link to="/" className="flex items-center py-4 px-2">
-                <span className="font-semibold text-gray-500 text-lg">Your Logo</span>
+                <img src="./public/CapeTownLogo.png" width={40} height={40}></img>
               </Link>
             </div>
             <div className="hidden md:flex items-center space-x-1">
@@ -75,7 +75,7 @@ const Navbar: React.FC = () => {
                 </button>
                 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-10">
                     <div className="px-4 py-2 text-sm text-gray-700 border-b">
                       {currentUser.email}
                     </div>
