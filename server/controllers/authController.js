@@ -44,9 +44,20 @@ class AuthController {
             if (!idToken) {
                 return res.status(401).json({ error: 'No token provided' });
             }
-
+    
             const decodedToken = await admin.auth().verifyIdToken(idToken);
+            const uid = decodedToken.uid;
             
+            // Get user from Firestore to check role
+            const userDoc = await admin.firestore().collection('users').doc(uid).get();
+            const userData = userDoc.data();
+            
+            // Set or update custom claims based on user's role in Firestore
+            if (userData && userData.role === 'admin') {
+                await admin.auth().setCustomUserClaims(uid, { role: 'admin' });
+            }
+    
+            // Create session after setting claims
             if (new Date().getTime() / 1000 - decodedToken.auth_time < 5 * 60) {
                 const expiresIn = 60 * 60 * 24 * 5 * 1000;
                 const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
@@ -58,7 +69,7 @@ class AuthController {
                     sameSite: 'strict'
                 });
                 
-                res.json({ message: 'Login successful' });
+                res.json({ message: 'Login successful', role: userData?.role });
             } else {
                 res.status(401).json({ error: 'Recent sign in required!' });
             }

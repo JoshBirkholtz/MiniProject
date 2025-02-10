@@ -25,4 +25,15 @@ router.get('/dashboard', authenticateUser, isAdmin, async (req, res) => {
     }
 });
 
+// Display all events
+router.get('/events', authenticateUser, isAdmin, async (req, res) => {
+    try {
+        const events = await EventModel.getAllEventsAdmin();
+        res.json(events);
+    } catch (error) {
+        console.error('Get Admin Events Error:', error);
+        res.status(500).json({ error: 'Failed to fetch events' });
+    }
+});
+
 module.exports = router;

@@ -57,4 +57,16 @@ router.get('/:eventId/check-rsvp', authenticateUser, async (req, res) => {
     }
 });
 
+// Get user's RSVPed events
+router.get('/my-events', authenticateUser, async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const events = await EventModel.getEventsByUserId(userId);
+        res.json(events);
+    } catch (error) {
+        console.error('Get My Events Error:', error);
+        res.status(500).json({ error: 'Failed to fetch your events' });
+    }
+});
+
 module.exports = router;

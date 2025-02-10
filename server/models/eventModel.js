@@ -20,6 +20,21 @@ class EventModel {
         }
     }
 
+    static async getAllEventsAdmin() {
+        try {
+            const snapshot = await db.collection('events')
+                .get();
+            
+            const events = [];
+            snapshot.forEach(doc => {
+                events.push({ id: doc.id, ...doc.data() });
+            });
+            return events;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async createEvent(eventData) {
         try {
             // Ensure both start and end dates are provided
@@ -70,6 +85,50 @@ class EventModel {
                 await RSVPModel.createRSVP(userId, eventId);
             });
             return true;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async updateEventStatuses() {
+        try {
+            const now = admin.firestore.Timestamp.now();
+            
+            // Get all active events
+            const snapshot = await db.collection('events')
+                .where('status', '==', 'active')
+                .get();
+
+            const batch = db.batch();
+            
+            snapshot.forEach(doc => {
+                const event = doc.data();
+                // Check if end date is in the past
+                if (event.endDate && event.endDate._seconds < now._seconds) {
+                    // Update status to completed
+                    batch.update(doc.ref, { status: 'completed' });
+                }
+            });
+
+            await batch.commit();
+        } catch (error) {
+            console.error('Error updating event statuses:', error);
+            throw error;
+        }
+    }
+
+    static async getEventsByUserId(userId) {
+        try {
+            // Get all RSVPs for this user
+            const userRSVPs = await RSVPModel.getRSVPsByUserId(userId);
+            
+            // Get all events for these RSVPs
+            const eventPromises = userRSVPs.map(async rsvp => {
+                const eventDoc = await db.collection('events').doc(rsvp.eventId).get();
+                return { id: eventDoc.id, ...eventDoc.data() };
+            });
+            
+            return Promise.all(eventPromises);
         } catch (error) {
             throw error;
         }

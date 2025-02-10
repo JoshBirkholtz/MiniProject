@@ -43,10 +43,10 @@ const Navbar: React.FC = () => {
                 Home
               </Link>
               <Link
-                to="/about"
+                to="/my-events"
                 className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
               >
-                About
+                My Events
               </Link>
               <Link
                 to="/services"
