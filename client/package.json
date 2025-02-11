@@ -12,7 +12,7 @@
   "dependencies": {
     "@heroui/navbar": "^2.2.9",
     "@mantine/core": "^7.16.2",
-    "@mantine/dates": "^7.16.2",
+    "@mantine/dates": "^7.16.3",
     "@mantine/form": "^7.16.2",
     "@mantine/hooks": "^7.16.2",
     "@tabler/icons-react": "^3.29.0",

@@ -27,6 +27,7 @@ function LocationPicker({ onLocationSelect }) {
             const place = autocomplete.getPlace();
             if (place.geometry) {
                 onLocationSelect({
+                    placeName: place.name,
                     address: place.formatted_address,
                     latitude: place.geometry.location.lat(),
                     longitude: place.geometry.location.lng(),

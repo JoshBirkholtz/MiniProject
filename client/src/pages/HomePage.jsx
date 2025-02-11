@@ -3,12 +3,14 @@ import { Link } from "react-router-dom"
 import { Card, Image, Text, Badge, Button, Group, Select } from '@mantine/core';
 import axios from "axios"
 import EventCard from "../components/eventcard/event-card"
+import MapModal from "../components/mapmodal/map-modal"
 
 
 const HomePage = () => {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [isMapOpen, setIsMapOpen] = useState(false)
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -62,10 +64,12 @@ const HomePage = () => {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold">Upcoming Events</h2>
           <div className="flex gap-4">
-            <Select
-              placeholder="Weekend"
-              data={['Weekdays', 'Weekend']}
-            />
+            <Button
+              variant="light"
+              onClick={() => setIsMapOpen(true)}
+            >
+              View Map
+            </Button>
             <Select
               placeholder="Category"
               data={['Art', 'Fashion', 'Beer', 'Food', 'Music']}
@@ -84,6 +88,12 @@ const HomePage = () => {
             ))}
           </div>
         )}
+
+        <MapModal
+          isOpen={isMapOpen}
+          onClose={() => setIsMapOpen(false)}
+          events={events}
+        />
       </section>
     </div>
   )

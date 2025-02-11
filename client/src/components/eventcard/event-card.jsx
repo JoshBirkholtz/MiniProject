@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import WeatherWidget from '../weather/weather-widget';
 
 
 const formatFirebaseDateTime = (timestamp) => {
@@ -148,9 +149,8 @@ function EventCard({ event }) {
     };
 
     const formatGoogleMapsUrl = (location) => {
-        // Encode the location for use in URL
-        const encodedLocation = encodeURIComponent(location);
-        return `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
+        const query = location.placeName;
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
     };
 
     return (
@@ -190,7 +190,7 @@ function EventCard({ event }) {
                         }
                     }}
                 >
-                    {location}
+                    {location?.placeName || 'Location not available'}
                 </Text>
             </Group>
 
@@ -215,6 +215,14 @@ function EventCard({ event }) {
                         {formatFirebaseDateTime(endDate).time}
                     </Text>
                 </Group>
+
+                {location?.latitude && location?.longitude && (
+                    <WeatherWidget 
+                        latitude={location.latitude}
+                        longitude={location.longitude}
+                        date={startDate}
+                    />
+                )}
                 
             </Group>
 

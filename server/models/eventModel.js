@@ -45,6 +45,7 @@ class EventModel {
             const eventRef = await db.collection('events').add({
                 ...eventData,
                 location: {
+                    placeName: eventData.location.placeName,
                     address: eventData.location.address,
                     latitude: eventData.location.latitude,
                     longitude: eventData.location.longitude,

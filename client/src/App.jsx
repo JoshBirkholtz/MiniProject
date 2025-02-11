@@ -8,6 +8,7 @@ import '@mantine/core/styles.css'
 import { MantineProvider } from '@mantine/core'
 import { AuthProvider } from "./contexts/AuthContext"
 import MyEventsPage from "./pages/MyEventsPage"
+import CRUDEventsPage from "./pages/CRUDEventsPage"
 
 // Create a wrapper component to use useLocation
 const AppContent = () => {
@@ -21,6 +22,8 @@ const AppContent = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<AuthenticationPage type="login" />} />
         <Route path="/my-events" element={<MyEventsPage />} />
+        <Route path="/events/new" element={<CRUDEventsPage />} />
+        <Route path="/events/edit/:eventId" element={<CRUDEventsPage />} />
       </Routes>
     </div>
   )
