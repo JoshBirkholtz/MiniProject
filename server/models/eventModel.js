@@ -6,6 +6,9 @@ const RSVPModel = require('./rsvpModel');
 class EventModel {
     static async getAllEvents() {
         try {
+            // Update any events that should be marked as completed
+            await this.updateEventStatuses();
+
             const snapshot = await db.collection('events')
                 .where('status', '==', 'active')
                 .get();
@@ -22,6 +25,9 @@ class EventModel {
 
     static async getAllEventsAdmin() {
         try {
+            // Update any events that should be marked as completed
+            await this.updateEventStatuses();
+
             const snapshot = await db.collection('events')
                 .get();
             

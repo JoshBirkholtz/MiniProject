@@ -160,6 +160,7 @@ const CRUDEventsPage = () => {
 
                         <LocationPicker
                             onLocationSelect={(location) => form.setFieldValue('location', location)}
+                            initialLocation={form.values.location}
                         />
 
                         <Select

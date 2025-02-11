@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WeatherWidget from '../weather/weather-widget';
-
+import RatingModal from '../ratingmodal/rating-modal';
 
 const formatFirebaseDateTime = (timestamp) => {
     if (!timestamp) return { date: 'TBA', time: 'TBA' };
@@ -34,6 +34,8 @@ function EventCard({ event }) {
     const [isRsvping, setIsRsvping] = useState(false);
     const [hasRSVPd, setHasRSVPd] = useState(false);
     const [isCanceling, setIsCanceling] = useState(false);
+    const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+    const [userRating, setUserRating] = useState(false);
 
     // Check if user is admin when component mounts
     useEffect(() => {
@@ -70,6 +72,33 @@ function EventCard({ event }) {
 
         checkRSVPStatus();
     }, [currentUser, event.id, isAdmin]);
+
+    // Check if user has rated an event already
+    useEffect(() => {
+        const checkUserRating = async () => {
+            if (!currentUser || !status === 'completed' || !hasRSVPd) return;
+
+            try {
+                const idToken = await currentUser.getIdToken();
+                const response = await axios.get(
+                    `http://localhost:5500/api/events/${event.id}/ratings/${currentUser.uid}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${idToken}`
+                        },
+                        withCredentials: true
+                    }
+                );
+                if (response.data) {
+                    setUserRating(response.data);
+                }
+            } catch (error) {
+                console.error('Check Rating Error:', error);
+            }
+        };
+
+        checkUserRating();
+    }, [currentUser, event.id, status, hasRSVPd]);
 
     const handleRSVP = async () => {
         if (!currentUser) {
@@ -151,6 +180,27 @@ function EventCard({ event }) {
     const formatGoogleMapsUrl = (location) => {
         const query = location.placeName;
         return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    };
+
+    const handleRateEvent = async (rating, comment) => {
+        try {
+            const idToken = await currentUser.getIdToken();
+            await axios.post(
+                `http://localhost:5500/api/events/${event.id}/rate`,
+                { rating, comment },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    withCredentials: true
+                }
+            );
+            setUserRating({ rating, comment });
+            setIsRatingModalOpen(false);
+        } catch (error) {
+            console.error('Rating Error:', error);
+            throw new Error(error.response?.data?.error || 'Failed to submit rating');
+        }
     };
 
     return (
@@ -259,23 +309,53 @@ function EventCard({ event }) {
                     Edit Event
                 </Button>
             ) : (
-                // Regular users see RSVP button
-                <Button
-                    color={hasRSVPd ? "red" : "blue"}
-                    fullWidth
-                    mt="md"
-                    radius="md"
-                    disabled={currentAttendees >= maxAttendees || isRsvping || isCanceling}
-                    onClick={hasRSVPd ? handleCancelRSVP : handleRSVP}
-                    loading={isRsvping || isCanceling}
-                >
-                    {isRsvping ? 'Reserving...' : 
-                    isCanceling ? 'Canceling...' :
-                    hasRSVPd ? 'Cancel RSVP' :
-                    currentAttendees >= maxAttendees ? 'Event Full' : 
-                    'RSVP Now'}
-                </Button>
-            )} 
+                status === 'completed' && hasRSVPd && !userRating ? (
+                    <Button
+                        color="gray"
+                        fullWidth
+                        mt="md"
+                        onClick={() => setIsRatingModalOpen(true)}
+                    >
+                        Rate This Event
+                    </Button>
+                ) : (
+                    userRating ? (
+                        <Button
+                            color="gray"
+                            fullWidth
+                            mt="md"
+                            disabled
+                        >
+                            Event Completed
+                        </Button>
+                    ) : (
+                        // Regular users see RSVP/rating button
+                        <Button
+                            color={hasRSVPd ? "red" : "blue"}
+                            fullWidth
+                            mt="md"
+                            radius="md"
+                            disabled={currentAttendees >= maxAttendees || isRsvping || isCanceling}
+                            onClick={hasRSVPd ? handleCancelRSVP : handleRSVP}
+                            loading={isRsvping || isCanceling}
+                        >
+                            {isRsvping ? 'Reserving...' : 
+                            isCanceling ? 'Canceling...' :
+                            hasRSVPd ? 'Cancel RSVP' :
+                            currentAttendees >= maxAttendees ? 'Event Full' : 
+                            'RSVP Now'}
+                        </Button>
+                    )
+                )
+            )}
+
+            <RatingModal
+                isOpen={isRatingModalOpen}
+                onClose={() => setIsRatingModalOpen(false)}
+                eventId={event.id}
+                onSubmit={handleRateEvent}
+                initialRating={userRating}
+            /> 
 
         </Card>
     );

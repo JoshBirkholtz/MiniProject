@@ -1,11 +1,16 @@
 import { useEffect, useRef } from 'react';
-import { TextInput, Paper } from '@mantine/core';
+import { TextInput } from '@mantine/core';
 
-function LocationPicker({ onLocationSelect }) {
-    const autocompleteRef = useRef(null);
+function LocationPicker({ onLocationSelect, initialLocation }) {
+    const inputRef = useRef(null);
 
     useEffect(() => {
-        // Load Google Maps JavaScript API
+        if (initialLocation?.address) {
+            inputRef.current.value = initialLocation.address;
+        }
+    }, [initialLocation]);
+
+    useEffect(() => {
         const script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
         script.async = true;
@@ -18,10 +23,9 @@ function LocationPicker({ onLocationSelect }) {
     }, []);
 
     const initializeAutocomplete = () => {
-        const autocomplete = new google.maps.places.Autocomplete(
-            autocompleteRef.current,
-            { types: ['establishment', 'geocode'] }
-        );
+        const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
+            types: ['establishment', 'geocode']
+        });
 
         autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
@@ -39,9 +43,9 @@ function LocationPicker({ onLocationSelect }) {
 
     return (
         <TextInput
-            ref={autocompleteRef}
+            ref={inputRef}
+            label="Location"
             placeholder="Search for a location"
-            label="Event Location"
             required
         />
     );
