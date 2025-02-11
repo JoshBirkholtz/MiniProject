@@ -44,6 +44,12 @@ class EventModel {
 
             const eventRef = await db.collection('events').add({
                 ...eventData,
+                location: {
+                    address: eventData.location.address,
+                    latitude: eventData.location.latitude,
+                    longitude: eventData.location.longitude,
+                    placeId: eventData.location.placeId // Google Places ID
+                },
                 startDate: admin.firestore.Timestamp.fromDate(new Date(eventData.startDate)),
                 endDate: admin.firestore.Timestamp.fromDate(new Date(eventData.endDate)),
                 currentAttendees: 0,

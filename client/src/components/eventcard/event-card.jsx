@@ -147,6 +147,12 @@ function EventCard({ event }) {
         navigate(`/admin/events/edit/${event.id}`);
     };
 
+    const formatGoogleMapsUrl = (location) => {
+        // Encode the location for use in URL
+        const encodedLocation = encodeURIComponent(location);
+        return `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
+    };
+
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section>
@@ -170,8 +176,25 @@ function EventCard({ event }) {
 
             <Group gap="xs" mt="md">
                 <IconMapPin size={24} style={{ color: 'gray' }} />
-                <Text size="sm">{location}</Text>
+                <Text 
+                    size="sm" 
+                    component="a" 
+                    href={formatGoogleMapsUrl(location)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ 
+                        color: '#228be6', 
+                        textDecoration: 'none',
+                        '&:hover': {
+                            textDecoration: 'underline'
+                        }
+                    }}
+                >
+                    {location}
+                </Text>
             </Group>
+
+            
             <Group gap="xs" mt="xs">
                 <IconCalendar size={24} style={{ color: 'gray' }} />
                 <Text size="sm">

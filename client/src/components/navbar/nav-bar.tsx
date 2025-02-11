@@ -49,12 +49,20 @@ const Navbar: React.FC = () => {
             </div>
             <div className="hidden md:flex items-center space-x-1">
               { isAdmin ? (
-                <Link
-                  to="/my-events"
-                  className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                >
-                  All Events
-                </Link>
+                <>
+                  <Link
+                    to="/my-events"
+                    className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
+                  >
+                    All Events
+                  </Link>
+                  <Link
+                    to="/"
+                    className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
+                  >
+                    Dashboard
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link

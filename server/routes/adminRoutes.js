@@ -29,6 +29,7 @@ router.get('/dashboard', authenticateUser, isAdmin, async (req, res) => {
 router.get('/events', authenticateUser, isAdmin, async (req, res) => {
     try {
         const events = await EventModel.getAllEventsAdmin();
+        console.log(events);
         res.json(events);
     } catch (error) {
         console.error('Get Admin Events Error:', error);

@@ -37,7 +37,6 @@ const MyEventsPage = () => {
                     },
                     withCredentials: true
                 });
-    
                 setMyEvents(response.data);
                 setLoading(false);
             } catch (error) {
@@ -48,7 +47,7 @@ const MyEventsPage = () => {
         };
     
         fetchEvents();
-    }, [currentUser]);
+    }, [currentUser, isAdmin]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
