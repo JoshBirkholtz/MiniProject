@@ -140,6 +140,49 @@ class EventModel {
             throw error;
         }
     }
+
+    static async getEventById(eventId) {
+        try {
+            const eventDoc = await db.collection('events').doc(eventId).get();
+            if (!eventDoc.exists) {
+                return null;
+            }
+            return { id: eventDoc.id, ...eventDoc.data() };
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async updateEvent(eventId, eventData) {
+        try {
+            const eventRef = db.collection('events').doc(eventId);
+            const eventDoc = await eventRef.get();
+
+            if (!eventDoc.exists) {
+                throw new Error('Event not found');
+            }
+
+            // Convert dates to Firestore timestamps
+            const updatedData = {
+                ...eventData,
+                startDate: admin.firestore.Timestamp.fromDate(new Date(eventData.startDate)),
+                endDate: admin.firestore.Timestamp.fromDate(new Date(eventData.endDate)),
+                location: {
+                    placeName: eventData.location.placeName,
+                    address: eventData.location.address,
+                    latitude: eventData.location.latitude,
+                    longitude: eventData.location.longitude,
+                    placeId: eventData.location.placeId
+                },
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            };
+
+            await eventRef.update(updatedData);
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = EventModel;

@@ -145,7 +145,7 @@ function EventCard({ event }) {
 
     const handleEditEvent = () => {
         // Navigate to edit event page or open edit modal
-        navigate(`/admin/events/edit/${event.id}`);
+        navigate(`/events/edit/${event.id}`);
     };
 
     const formatGoogleMapsUrl = (location) => {
@@ -155,19 +155,41 @@ function EventCard({ event }) {
 
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Card.Section>
+            <Card.Section style={{ position: 'relative' }}>
                 <Image
                     src={event.imageUrl || "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"}
                     height={160}
                     alt={name}
                 />
+                {location?.latitude && location?.longitude && (
+                    <div style={{ 
+                        position: 'absolute', 
+                        bottom: 10, 
+                        left: 10, 
+                        background: 'rgba(255, 255, 255, 1)',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        backdropFilter: 'blur(4px)'
+                    }}>
+                        <WeatherWidget 
+                            latitude={location.latitude}
+                            longitude={location.longitude}
+                            date={startDate}
+                        />
+                    </div>
+                )}
             </Card.Section>
 
             <Group justify="space-between" mt="md" mb="xs">
                 <Text fw={500}>{name}</Text>
-                <Badge color={status === 'active' ? 'green' : 'gray'}>
-                    {currentAttendees}/{maxAttendees} Attendees
-                </Badge>
+                <Group gap="xs">
+                    <Badge color="blue">
+                        {event.category || 'Uncategorized'}
+                    </Badge>
+                    <Badge color={status === 'active' ? 'green' : 'gray'}>
+                        {currentAttendees}/{maxAttendees} Attendees
+                    </Badge>
+                </Group>
             </Group>
 
             <Text size="sm" c="dimmed">
@@ -179,15 +201,21 @@ function EventCard({ event }) {
                 <Text 
                     size="sm" 
                     component="a" 
+                    truncate="end"
                     href={formatGoogleMapsUrl(location)}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ 
                         color: '#228be6', 
                         textDecoration: 'none',
+                        maxWidth: '70%',  // Adjust this value as needed
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                         '&:hover': {
                             textDecoration: 'underline'
                         }
+                        
                     }}
                 >
                     {location?.placeName || 'Location not available'}
@@ -215,14 +243,6 @@ function EventCard({ event }) {
                         {formatFirebaseDateTime(endDate).time}
                     </Text>
                 </Group>
-
-                {location?.latitude && location?.longitude && (
-                    <WeatherWidget 
-                        latitude={location.latitude}
-                        longitude={location.longitude}
-                        date={startDate}
-                    />
-                )}
                 
             </Group>
 

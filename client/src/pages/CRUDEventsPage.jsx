@@ -60,7 +60,18 @@ const CRUDEventsPage = () => {
                     },
                     withCredentials: true
                 });
-                form.setValues(response.data);
+
+                // Convert Firestore timestamps to Date objects
+                const eventData = response.data;
+                const formattedData = {
+                    ...eventData,
+                    startDate: eventData.startDate?._seconds ? 
+                        new Date(eventData.startDate._seconds * 1000) : null,
+                    endDate: eventData.endDate?._seconds ? 
+                        new Date(eventData.endDate._seconds * 1000) : null
+                };
+
+                form.setValues(formattedData);
             } catch (error) {
                 console.error('Fetch Event Error:', error);
                 setError('Failed to fetch event');
@@ -68,7 +79,7 @@ const CRUDEventsPage = () => {
         };
 
         fetchEvent();
-    }, [eventId]);
+    }, [eventId, currentUser]);
 
     const handleSubmit = async (values) => {
         setLoading(true);

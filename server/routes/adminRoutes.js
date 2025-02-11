@@ -14,6 +14,21 @@ router.post('/events', authenticateUser, isAdmin, async (req, res) => {
     }
 });
 
+// Get a single event
+router.get('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const event = await EventModel.getEventById(eventId);
+        if (!event) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+        res.json(event);
+    } catch (error) {
+        console.error('Get Event Error:', error);
+        res.status(500).json({ error: 'Failed to fetch event' });
+    }
+});
+
 // Get admin dashboard data
 router.get('/dashboard', authenticateUser, isAdmin, async (req, res) => {
     try {
@@ -34,6 +49,19 @@ router.get('/events', authenticateUser, isAdmin, async (req, res) => {
     } catch (error) {
         console.error('Get Admin Events Error:', error);
         res.status(500).json({ error: 'Failed to fetch events' });
+    }
+});
+
+// Update an event
+router.put('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const eventData = req.body;
+        await EventModel.updateEvent(eventId, eventData);
+        res.json({ message: 'Event updated successfully' });
+    } catch (error) {
+        console.error('Update Event Error:', error);
+        res.status(500).json({ error: 'Failed to update event' });
     }
 });
 
