@@ -1,5 +1,5 @@
-import { Card, Image, Text, Badge, Button, Group, Divider } from '@mantine/core';
-import { IconMapPin, IconCalendar, IconCalendarStats, IconCalendarX, IconEdit } from '@tabler/icons-react';
+import { Card, Image, Text, Badge, Button, Group, Divider, Menu, Notification, Modal } from '@mantine/core';
+import { IconMapPin, IconCalendar, IconCalendarStats, IconCalendarX, IconEdit, IconSettings, IconArchive, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
@@ -36,6 +36,7 @@ function EventCard({ event }) {
     const [isCanceling, setIsCanceling] = useState(false);
     const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
     const [userRating, setUserRating] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     // Check if user is admin when component mounts
     useEffect(() => {
@@ -203,6 +204,46 @@ function EventCard({ event }) {
         }
     };
 
+    const handleArchive = async () => {
+        try {
+            const idToken = await currentUser.getIdToken();
+            await axios.patch(
+                `http://localhost:5500/api/admin/events/${event.id}/status`,
+                { status: 'archived' },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    withCredentials: true
+                }
+            );
+            // Refresh the events list or update UI
+            window.location.reload();
+        } catch (error) {
+            console.error('Archive Error:', error);
+        }
+    };
+    
+    const handleDelete = async () => {
+        try {
+            const idToken = await currentUser.getIdToken();
+            await axios.delete(
+                `http://localhost:5500/api/admin/events/${event.id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    withCredentials: true
+                }
+            );
+            // Refresh the events list or update UI
+            window.location.reload();
+        } catch (error) {
+            console.error('Delete Error:', error);
+            alert('Failed to delete event');
+        }
+    };
+
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section style={{ position: 'relative' }}>
@@ -297,17 +338,49 @@ function EventCard({ event }) {
             </Group>
 
             {isAdmin ? (
-                // Admin sees Edit button
-                <Button
-                    color="yellow"
-                    fullWidth
-                    mt="md"
-                    radius="md"
-                    leftSection={<IconEdit size={16} />}
-                    onClick={handleEditEvent}
-                >
-                    Edit Event
-                </Button>
+                // Admin sees Edit and settings button
+                <Group justify="space-between">
+                    <Button
+                        color="yellow"
+                        mt="md"
+                        radius="md"
+                        leftSection={<IconEdit size={16} />}
+                        onClick={handleEditEvent}
+                    >
+                        Edit Event
+                    </Button>
+                    <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                            <Button
+                                color="gray"
+                                mt="md"
+                                radius="md"
+                                leftSection={<IconSettings size={16} />}
+                            >
+                                Settings
+                            </Button>
+                        </Menu.Target>
+
+                        <Menu.Dropdown>
+                            <Menu.Label>Event Actions</Menu.Label>
+                            <Menu.Item
+                                color="yellow"
+                                leftSection={<IconArchive size={16} />}
+                                onClick={handleArchive}
+                            >
+                                Archive Event
+                            </Menu.Item>
+                            <Menu.Item
+                                color="red"
+                                leftSection={<IconTrash size={16} />}
+                                onClick={() => setDeleteModalOpen(true)}
+                            >
+                                Delete Event
+                            </Menu.Item>
+                        </Menu.Dropdown>
+                    </Menu>
+                </Group>
+                
             ) : (
                 status === 'completed' && hasRSVPd && !userRating ? (
                     <Button
@@ -348,6 +421,25 @@ function EventCard({ event }) {
                     )
                 )
             )}
+
+            <Modal
+                opened={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Delete Event"
+                centered
+            >
+                <Text size="sm" mb="lg">
+                    Are you sure you want to delete this event? This action cannot be undone.
+                </Text>
+                <Group justify="flex-end">
+                    <Button variant="light" onClick={() => setDeleteModalOpen(false)}>
+                        Cancel
+                    </Button>
+                    <Button color="red" onClick={handleDelete}>
+                        Delete
+                    </Button>
+                </Group>
+            </Modal>
 
             <RatingModal
                 isOpen={isRatingModalOpen}

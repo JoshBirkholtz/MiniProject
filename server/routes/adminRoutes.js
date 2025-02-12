@@ -65,4 +65,29 @@ router.put('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
     }
 });
 
+// Delete an event
+router.delete('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        await EventModel.deleteEvent(eventId);
+        res.json({ message: 'Event deleted successfully' });
+    } catch (error) {
+        console.error('Delete Event Error:', error);
+        res.status(500).json({ error: 'Failed to delete event' });
+    }
+});
+
+// Archive/unarchive an event
+router.patch('/events/:eventId/status', authenticateUser, isAdmin, async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const { status } = req.body;
+        await EventModel.updateEventStatus(eventId, status);
+        res.json({ message: 'Event status updated successfully' });
+    } catch (error) {
+        console.error('Update Status Error:', error);
+        res.status(500).json({ error: 'Failed to update event status' });
+    }
+});
+
 module.exports = router;

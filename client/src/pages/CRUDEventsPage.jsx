@@ -6,6 +6,7 @@ import { useForm } from '@mantine/form';
 import axios from 'axios';
 import LocationPicker from '../components/locationpicker/location-picker';
 import { useAuth } from '../contexts/AuthContext';
+import { IconArchive, IconTrash, IconEdit } from '@tabler/icons-react';
 
 const CRUDEventsPage = () => {
     const { eventId } = useParams();
@@ -13,6 +14,7 @@ const CRUDEventsPage = () => {
     const { currentUser } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const form = useForm({
         initialValues: {
@@ -181,7 +183,6 @@ const CRUDEventsPage = () => {
                                 {error}
                             </Text>
                         )}
-
                         <Button 
                             type="submit" 
                             loading={loading}

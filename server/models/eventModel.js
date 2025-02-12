@@ -69,6 +69,15 @@ class EventModel {
         }
     }
 
+    static async deleteEvent(eventId) {
+        try {
+            await db.collection('events').doc(eventId).delete();
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async rsvpToEvent(eventId, userId) {
         try {
             // Check if user has already RSVP'd
@@ -184,6 +193,18 @@ class EventModel {
             };
 
             await eventRef.update(updatedData);
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async updateEventStatus(eventId, status) {
+        try {
+            await db.collection('events').doc(eventId).update({
+                status: status,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
             return true;
         } catch (error) {
             throw error;
