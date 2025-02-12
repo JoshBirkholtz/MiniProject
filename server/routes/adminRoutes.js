@@ -2,6 +2,18 @@ const express = require('express');
 const router = express.Router();
 const { authenticateUser, isAdmin } = require('../middleware/auth');
 const EventModel = require('../models/eventModel');
+const UserModel = require('../models/userModel');
+const RSVPModel = require('../models/rsvpModel');
+const RatingModel = require('../models/ratingModel');
+
+const { 
+    calculateAgeGroups,
+    calculateGenderDistribution,
+    calculateBudgetPreferences,
+    calculateEventCategories,
+    calculateRatingStats,
+    calculateAttendeeDemographics
+} = require('../utils/statsCalculator');
 
 // Create a new event (admin only)
 router.post('/events', authenticateUser, isAdmin, async (req, res) => {
@@ -44,7 +56,6 @@ router.get('/dashboard', authenticateUser, isAdmin, async (req, res) => {
 router.get('/events', authenticateUser, isAdmin, async (req, res) => {
     try {
         const events = await EventModel.getAllEventsAdmin();
-        console.log(events);
         res.json(events);
     } catch (error) {
         console.error('Get Admin Events Error:', error);
@@ -87,6 +98,64 @@ router.patch('/events/:eventId/status', authenticateUser, isAdmin, async (req, r
     } catch (error) {
         console.error('Update Status Error:', error);
         res.status(500).json({ error: 'Failed to update event status' });
+    }
+});
+
+// Get festival dashboard data
+router.get('/dashboard/festival', authenticateUser, isAdmin, async (req, res) => {
+    try {
+        // Get all users
+        const users = await UserModel.getAllUsers();
+
+        // Get all events
+        const events = await EventModel.getAllEventsAdmin();
+
+        // Get all RSVPs
+        const rsvps = await RSVPModel.getAllRSVPs();
+
+        // Calculate statistics
+        const stats = {
+            totalVisitors: users.length,
+            demographics: {
+                ageGroups: calculateAgeGroups(users),
+                genderDistribution: calculateGenderDistribution(users),
+                budgetPreferences: calculateBudgetPreferences(users),
+                eventCategories: calculateEventCategories(users)
+            },
+            eventStats: {
+                totalEvents: events.length,
+                totalRSVPs: rsvps.length
+            }
+        };
+
+        res.json(stats);
+    } catch (error) {
+        console.error('Dashboard Error:', error);
+        res.status(500).json({ error: 'Failed to fetch dashboard data' });
+    }
+});
+
+// Get event-specific dashboard data
+router.get('/events/:eventId/stats', authenticateUser, isAdmin, async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        
+        // Get event ratings
+        const ratings = await RatingModel.getRatingsByEventId(eventId);
+
+        // Get event RSVPs with user data
+        const attendees = await RSVPModel.getRSVPsWithUserDataByEventId(eventId);
+
+        const stats = {
+            ratings: calculateRatingStats(ratings),
+            demographics: calculateAttendeeDemographics(attendees),
+            attendees
+        };
+
+        res.json(stats);
+    } catch (error) {
+        console.error('Event Stats Error:', error);
+        res.status(500).json({ error: 'Failed to fetch event statistics' });
     }
 });
 

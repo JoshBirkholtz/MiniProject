@@ -57,7 +57,7 @@ const Navbar: React.FC = () => {
                     All Events
                   </Link>
                   <Link
-                    to="/"
+                    to="/admin/dashboard"
                     className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
                   >
                     Dashboard

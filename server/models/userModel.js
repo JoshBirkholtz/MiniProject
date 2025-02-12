@@ -23,6 +23,23 @@ class UserModel {
             throw error;
         }
     }
+
+    static async getAllUsers() {
+        try {
+            const userSnapshot = await db.collection('users').get();
+
+            const users = [];
+
+            userSnapshot.forEach(doc => {
+                users.push({ id: doc.id, ...doc.data() });
+            });
+
+            return users;
+
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = UserModel;

@@ -130,6 +130,51 @@ class RSVPModel {
             throw error;
         }
     }
+
+    static async getAllRSVPs() {
+        try {
+            const rsvpSnapshot = await db.collection('rsvps').get();
+
+            const rsvps = [];
+
+            rsvpSnapshot.forEach(doc => {
+                rsvps.push({ id: doc.id, ...doc.data() });
+            });
+
+            return rsvps;
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getRSVPsWithUserDataByEventId(eventId) {
+        try {
+            const rsvpsSnapshot = await db.collection('rsvps')
+                .where('eventId', '==', eventId)
+                .get();
+
+            const attendeesWithData = [];
+            
+            for (const doc of rsvpsSnapshot.docs) {
+                const rsvpData = doc.data();
+                const userDoc = await db.collection('users')
+                    .doc(rsvpData.userId)
+                    .get();
+                
+                if (userDoc.exists) {
+                    attendeesWithData.push({
+                        rsvpId: doc.id,
+                        ...userDoc.data()
+                    });
+                }
+            }
+
+            return attendeesWithData;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = RSVPModel;
