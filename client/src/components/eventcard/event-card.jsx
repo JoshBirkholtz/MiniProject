@@ -339,7 +339,7 @@ function EventCard({ event }) {
 
             {isAdmin ? (
                 // Admin sees Edit and settings button
-                <Group justify="space-between">
+                <Group grow>
                     <Button
                         color="yellow"
                         mt="md"

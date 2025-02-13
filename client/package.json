@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@heroui/navbar": "^2.2.9",
+    "@mantine/charts": "^7.16.3",
     "@mantine/core": "^7.16.2",
     "@mantine/dates": "^7.16.3",
     "@mantine/form": "^7.16.2",
@@ -24,7 +25,8 @@
     "firebase": "^11.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.5"
+    "react-router-dom": "^7.1.5",
+    "recharts": "^2.15.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

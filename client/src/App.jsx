@@ -4,7 +4,6 @@ import axios from "axios"
 import HomePage from "./pages/HomePage"
 import NavBar from "./components/navbar/nav-bar"
 import AuthenticationPage from "./pages/AuthenticationPage"
-import '@mantine/core/styles.css'
 import { MantineProvider } from '@mantine/core'
 import { AuthProvider } from "./contexts/AuthContext"
 import MyEventsPage from "./pages/MyEventsPage"

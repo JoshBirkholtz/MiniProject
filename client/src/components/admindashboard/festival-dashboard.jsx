@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Card, Text, Group, Stack, Title, Badge, Table } from '@mantine/core';
-import { IconUser, IconStar, IconChartBar } from '@tabler/icons-react';
+import { Card, Text, Group, Stack, Title, Badge, Table, Grid, Container } from '@mantine/core';
+import { IconUser, IconStar, IconChartBar, IconUsers, IconCalendarEvent, IconThumbUp } from '@tabler/icons-react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
+import { BarChart, DonutChart } from '@mantine/charts';
 
 function FestivalDashboard() {
     const { currentUser } = useAuth();
@@ -44,47 +45,74 @@ function FestivalDashboard() {
         fetchDashboardData();
     }, [currentUser]);
 
+    const transformAgeData = (ageGroups) => {
+        return Object.entries(ageGroups).map(([range, count]) => ({
+            age: range,
+            Visitors: count 
+        }));
+    };
+
+    const ageData = transformAgeData(stats.demographics.ageGroups);
+
+    const transformGenderData = (genderDistribution) => {        
+        return Object.entries(genderDistribution).map(([gender, count]) => ({
+            name: gender,
+            value: count,
+            color: gender === 'Male' ? 'blue.6' : 
+                   gender === 'Female' ? 'pink.6' : 
+                   'yellow.6' // for other/non-binary
+        }));
+    };
+
+    const genderData = transformGenderData(stats.demographics.genderDistribution);
+
     return (
         <div className="p-6">
             <Title order={2} mb="xl">Festival Dashboard</Title>
             
-            <Group grow mb="xl">
-                <Card shadow="sm">
-                    <Text size="lg" weight={500}>Total Visitors</Text>
-                    <Text size="xl">{stats.totalVisitors}</Text>
+            <Group mb="xl" grow position="apart">
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Text size="sm" c="dimmed">Total Visitors</Text>
+                    <Text size="xl" fw={700}>{stats.totalVisitors}</Text>
                 </Card>
-                <Card shadow="sm">
-                    <Text size="lg" weight={500}>Total Events</Text>
-                    <Text size="xl">{stats.eventStats.totalEvents}</Text>
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Text size="sm" c="dimmed">Total Events</Text>
+                    <Text size="xl" fw={700}>{stats.eventStats.totalEvents}</Text>
                 </Card>
-                <Card shadow="sm">
-                    <Text size="lg" weight={500}>Total RSVPs</Text>
-                    <Text size="xl">{stats.eventStats.totalRSVPs}</Text>
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Text size="sm" c="dimmed">Total RSVPs</Text>
+                    <Text size="xl" fw={700}>{stats.eventStats.totalRSVPs}</Text>
                 </Card>
             </Group>
 
             <Stack spacing="xl">
-                <Card shadow="sm">
+                <Card shadow="sm" withBorder radius={12} padding={16}>
                     <Title order={3} mb="md">Demographics</Title>
                     <Group grow>
-                        <div>
+                        <Card shadow="sm" withBorder radius={12} padding={16}> 
                             <Text weight={500} mb="xs">Age Distribution</Text>
-                            {Object.entries(stats.demographics.ageGroups).map(([range, count]) => (
-                                <Group key={range} position="apart">
-                                    <Text>{range}</Text>
-                                    <Badge>{count}</Badge>
-                                </Group>
-                            ))}
-                        </div>
-                        <div>
+                            <Container fluid>
+                                <BarChart
+                                    h={300}
+                                    w={300}
+                                    data={ageData}
+                                    dataKey="age"
+                                    series={[
+                                        { name: 'Visitors', color: 'blue.6' }
+                                    ]}
+                                    tickLine="y"
+                                    yAxisLabel="Number of Visitors"
+                                    xAxisLabel="Age Groups"
+                                    withTooltip={false}
+                                />
+                            </Container>  
+                        </Card>
+                        <Card shadow="sm" withBorder radius={12} padding={16}>
                             <Text weight={500} mb="xs">Gender Distribution</Text>
-                            {Object.entries(stats.demographics.genderDistribution).map(([gender, count]) => (
-                                <Group key={gender} position="apart">
-                                    <Text>{gender}</Text>
-                                    <Badge>{count}</Badge>
-                                </Group>
-                            ))}
-                        </div>
+                            <Container fluid>
+                                <DonutChart data={genderData} />
+                            </Container>
+                        </Card>
                     </Group>
                 </Card>
 
