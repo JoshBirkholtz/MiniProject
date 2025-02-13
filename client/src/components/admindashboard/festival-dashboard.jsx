@@ -66,6 +66,26 @@ function FestivalDashboard() {
 
     const genderData = transformGenderData(stats.demographics.genderDistribution);
 
+    const transformBudgetData = (budgetPreferences) => {
+        return Object.entries(budgetPreferences)
+            .sort((a, b) => {
+                // Sort by budget range (assuming format like "R0-R100")
+                const aValue = parseInt(a[0].split('-')[0].replace('R', ''));
+                const bValue = parseInt(b[0].split('-')[0].replace('R', ''));
+                return aValue - bValue;
+            });
+    };
+
+    const transformCategoryData = (categoryPreferences) => {
+        if (!categoryPreferences) return [];
+        return Object.entries(categoryPreferences)
+            .sort((a, b) => b[1] - a[1]) // Sort by count in descending order
+            .map(([category, count]) => ({
+                category,
+                count
+            }));
+    };
+
     return (
         <div className="p-6">
             <Title order={2} mb="xl">Festival Dashboard</Title>
@@ -86,11 +106,11 @@ function FestivalDashboard() {
             </Group>
 
             <Stack spacing="xl">
-                <Card shadow="sm" withBorder radius={12} padding={16}>
+                <Card shadow="sm" withBorder radius={12} padding={16} mb={16}>
                     <Title order={3} mb="md">Demographics</Title>
                     <Group grow>
                         <Card shadow="sm" withBorder radius={12} padding={16}> 
-                            <Text weight={500} mb="xs">Age Distribution</Text>
+                            <Text fw={700} mb="xs">Age Distribution</Text>
                             <Container fluid>
                                 <BarChart
                                     h={300}
@@ -108,33 +128,78 @@ function FestivalDashboard() {
                             </Container>  
                         </Card>
                         <Card shadow="sm" withBorder radius={12} padding={16}>
-                            <Text weight={500} mb="xs">Gender Distribution</Text>
-                            <Container fluid>
-                                <DonutChart data={genderData} />
+                            <Text fw={700} mb="xs">Gender Distribution</Text>
+                            <Container fluid={true}>
+                                <DonutChart data={genderData} size={250}/>
                             </Container>
                         </Card>
                     </Group>
                 </Card>
 
-                <Card shadow="sm">
-                    <Title order={3} mb="md">Budget Preferences</Title>
-                    {Object.entries(stats.demographics.budgetPreferences).map(([range, count]) => (
-                        <Group key={range} position="apart">
-                            <Text>{range}</Text>
-                            <Badge>{count}</Badge>
-                        </Group>
-                    ))}
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Title order={3} mb="md">Preferences</Title>
+                    <Group grow>
+                        <Card shadow="sm" withBorder radius={12} padding={16}> 
+                            <Text fw={700} mb="md">Budget</Text>
+                            <Table verticalSpacing="md" highlightOnHover>
+                                <Table.Tbody>
+                                    {transformBudgetData(stats.demographics.budgetPreferences)
+                                        .map(([range, count]) => (
+                                            <Table.Tr key={range}>
+                                                <Table.Td style={{ 
+                                                    fontSize: '1rem', 
+                                                    color: 'var(--mantine-color-gray-7)'
+                                                }}>
+                                                    {range}
+                                                </Table.Td>
+                                                <Table.Td style={{ textAlign: 'right' }}>
+                                                    <Badge 
+                                                        size="lg" 
+                                                        radius="sm"
+                                                        variant="light"
+                                                        color="blue"
+                                                    >
+                                                        {count}
+                                                    </Badge>
+                                                </Table.Td>
+                                            </Table.Tr>
+                                        ))}
+                                </Table.Tbody>
+                            </Table>
+                        </Card>
+
+                        <Card shadow="sm" withBorder radius={12} padding={16}> 
+                            <Text fw={700} mb="md">Category</Text>
+                            <Table verticalSpacing="md" highlightOnHover>
+                                <Table.Tbody>
+                                    {transformCategoryData(stats.demographics.eventCategories)
+                                        .map((item) => (
+                                            <Table.Tr key={item.category}>
+                                                <Table.Td style={{ 
+                                                    fontSize: '1rem', 
+                                                    color: 'var(--mantine-color-gray-7)'
+                                                }}>
+                                                    {item.category}
+                                                </Table.Td>
+                                                <Table.Td style={{ textAlign: 'right' }}>
+                                                    <Badge 
+                                                        size="lg" 
+                                                        radius="sm"
+                                                        variant="light"
+                                                        color="blue"
+                                                    >
+                                                        {item.count}
+                                                    </Badge>
+                                                </Table.Td>
+                                            </Table.Tr>
+                                        ))}
+                                </Table.Tbody>
+                            </Table>
+                        </Card>
+  
+                    </Group>
                 </Card>
 
-                <Card shadow="sm">
-                    <Title order={3} mb="md">Popular Categories</Title>
-                    {Object.entries(stats.demographics.eventCategories).map(([category, count]) => (
-                        <Group key={category} position="apart">
-                            <Text>{category}</Text>
-                            <Badge>{count}</Badge>
-                        </Group>
-                    ))}
-                </Card>
             </Stack>
         </div>
     );
