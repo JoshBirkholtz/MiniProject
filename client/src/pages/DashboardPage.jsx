@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Tabs, Title } from '@mantine/core';
+import { Tabs, Title, Select } from '@mantine/core';
 import { IconChartBar, IconCalendar } from '@tabler/icons-react';
 import FestivalDashboard from '../components/admindashboard/festival-dashboard';
 import EventDashboard from '../components/admindashboard/event-dashboard';
@@ -70,22 +70,7 @@ function DashboardPage() {
                 </Tabs.Panel>
 
                 <Tabs.Panel value="events" pt="xl">
-                    <div className="mb-6">
-                        <select 
-                            className="w-full p-2 border rounded"
-                            value={selectedEventId || ''}
-                            onChange={(e) => setSelectedEventId(e.target.value)}
-                        >
-                            {events.map(event => (
-                                <option key={event.id} value={event.id}>
-                                    {event.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    {selectedEventId && (
-                        <EventDashboard eventId={selectedEventId} />
-                    )}
+                    <EventDashboard events={events} />
                 </Tabs.Panel>
             </Tabs>
         </div>

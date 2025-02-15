@@ -92,15 +92,15 @@ function FestivalDashboard() {
             
             <Group mb="xl" grow position="apart">
                 <Card shadow="sm" withBorder radius={12} padding={16}>
-                    <Text size="sm" c="dimmed">Total Visitors</Text>
+                    <Text size="sm" c="dimmed" mb={12}>Total Visitors</Text>
                     <Text size="xl" fw={700}>{stats.totalVisitors}</Text>
                 </Card>
                 <Card shadow="sm" withBorder radius={12} padding={16}>
-                    <Text size="sm" c="dimmed">Total Events</Text>
+                    <Text size="sm" c="dimmed" mb={12}>Total Events</Text>
                     <Text size="xl" fw={700}>{stats.eventStats.totalEvents}</Text>
                 </Card>
                 <Card shadow="sm" withBorder radius={12} padding={16}>
-                    <Text size="sm" c="dimmed">Total RSVPs</Text>
+                    <Text size="sm" c="dimmed" mb={12}>Total RSVPs</Text>
                     <Text size="xl" fw={700}>{stats.eventStats.totalRSVPs}</Text>
                 </Card>
             </Group>

@@ -147,10 +147,13 @@ router.get('/events/:eventId/stats', authenticateUser, isAdmin, async (req, res)
         const attendees = await RSVPModel.getRSVPsWithUserDataByEventId(eventId);
 
         const stats = {
+            numRatings: ratings.length,
             ratings: calculateRatingStats(ratings),
             demographics: calculateAttendeeDemographics(attendees),
             attendees
         };
+
+        console.log(stats)
 
         res.json(stats);
     } catch (error) {

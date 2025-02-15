@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Card, Text, Group, Stack, Title, Rating, Table } from '@mantine/core';
+import { Card, Text, Group, Stack, Title, Rating, Table, Select, Container } from '@mantine/core';
+import { BarChart, DonutChart } from '@mantine/charts';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
-function EventDashboard({ eventId }) {
+function EventDashboard({ events }) {
     const { currentUser } = useAuth();
+    const [selectedEventId, setSelectedEventId] = useState(null);
     const [eventStats, setEventStats] = useState({
         ratings: {
+            numRatings: 0,
             average: 0,
             distribution: {},
             comments: []
@@ -20,12 +23,19 @@ function EventDashboard({ eventId }) {
     });
 
     useEffect(() => {
+        // Set initial selected event
+        if (events?.length > 0) {
+            setSelectedEventId(events[0].id);
+        }
+    }, [events]);
+
+    useEffect(() => {
         const fetchEventStats = async () => {
-            if (!currentUser) return;
+            if (!currentUser || !selectedEventId) return;
             try {
                 const idToken = await currentUser.getIdToken();
                 const response = await axios.get(
-                    `http://localhost:5500/api/admin/events/${eventId}/stats`,
+                    `http://localhost:5500/api/admin/events/${selectedEventId}/stats`,
                     {
                         headers: {
                             'Authorization': `Bearer ${idToken}`
@@ -40,84 +50,131 @@ function EventDashboard({ eventId }) {
         };
 
         fetchEventStats();
-    }, [eventId, currentUser]);
+    }, [selectedEventId, currentUser]);
+
+    const transformAgeData = (ageGroups) => {
+        return Object.entries(ageGroups).map(([range, count]) => ({
+            age: range,
+            Visitors: count 
+        }));
+    };
+
+    const ageData = transformAgeData(eventStats.demographics.ageGroups);
+
+    const transformGenderData = (genderDistribution) => {        
+        return Object.entries(genderDistribution).map(([gender, count]) => ({
+            name: gender,
+            value: count,
+            color: gender === 'Male' ? 'blue.6' : 
+                   gender === 'Female' ? 'pink.6' : 
+                   'yellow.6' // for other/non-binary
+        }));
+    };
+
+    const genderData = transformGenderData(eventStats.demographics.genderDistribution);
+
+    const attendeeRows = eventStats.attendees.map((attendee) => (
+        <Table.Tr key={attendee.id}>
+          <Table.Td>{attendee.name}</Table.Td>
+          <Table.Td>{attendee.age}</Table.Td>
+          <Table.Td>{attendee.gender}</Table.Td>
+          <Table.Td>{attendee.budgetPreference}</Table.Td>
+        </Table.Tr>
+      ));
 
     return (
         <div className="p-6">
-            <Title order={2} mb="xl">Event Dashboard</Title>
+            <Group justify="space-between" align='top'>
+                <Title order={2} mb="xl">Event Dashboard</Title>
+                <Select
+                    placeholder="Pick event"
+                    value={selectedEventId || ''}
+                    onChange={setSelectedEventId}
+                    data={events?.map(event => ({
+                        value: event.id,
+                        label: event.name
+                    })) || []}
+                />
+            </Group>
 
+            <Group mb="xl" grow position="apart">
+
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Text size="sm" c="dimmed" mb={12}>Total Attendees</Text>
+                    <Text size="xl" fw={700}>{eventStats.attendees.length}</Text>
+                </Card>
+
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Text size="sm" c="dimmed" mb={12}>Total Ratings</Text>
+                    <Text size="xl" fw={700}>{eventStats.numRatings}</Text>
+                </Card>
+
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Text size="sm" c="dimmed" mb={12}>Average Rating</Text>
+                    <Group>
+                        <Text size="xl" fw={700}>{eventStats.ratings.average}</Text>
+                        <Rating value={eventStats.ratings.average} readOnly fractions={2} size="sm" />
+                    </Group>
+                </Card>
+
+            </Group>
+            
             <Stack spacing="xl">
-                <Card shadow="sm">
-                    <Title order={3} mb="md">Ratings</Title>
-                    <Group position="apart" mb="md">
-                        <Text>Average Rating:</Text>
-                        <Rating value={eventStats.ratings.average} readOnly />
-                    </Group>
-                    <div>
-                        {Object.entries(eventStats.ratings.distribution).map(([stars, count]) => (
-                            <Group key={stars} position="apart">
-                                <Rating value={parseInt(stars)} readOnly />
-                                <Text>{count} reviews</Text>
-                            </Group>
+
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Title order={3} mb="md">Attendee Comments</Title>
+                    <Group>
+                        {eventStats.ratings.comments.map((comment, index) => (
+                            <Card shadow="sm" withBorder radius={12} padding={16} key={index}>
+                                <Rating value={comment.rating} readOnly mb="xs" />
+                                <Text>{comment.text}</Text>
+                            </Card>
                         ))}
-                    </div>
-                </Card>
-
-                <Card shadow="sm">
-                    <Title order={3} mb="md">Visitor Comments</Title>
-                    {eventStats.ratings.comments.map((comment, index) => (
-                        <div key={index} className="mb-4 p-4 border-b">
-                            <Rating value={comment.rating} readOnly mb="xs" />
-                            <Text>{comment.text}</Text>
-                        </div>
-                    ))}
-                </Card>
-
-                <Card shadow="sm">
-                    <Title order={3} mb="md">Attendee Demographics</Title>
-                    <Group grow>
-                        <div>
-                            <Text weight={500} mb="xs">Age Groups</Text>
-                            {Object.entries(eventStats.demographics.ageGroups).map(([range, count]) => (
-                                <Group key={range} position="apart">
-                                    <Text>{range}</Text>
-                                    <Text>{count}</Text>
-                                </Group>
-                            ))}
-                        </div>
-                        <div>
-                            <Text weight={500} mb="xs">Gender Distribution</Text>
-                            {Object.entries(eventStats.demographics.genderDistribution).map(([gender, count]) => (
-                                <Group key={gender} position="apart">
-                                    <Text>{gender}</Text>
-                                    <Text>{count}</Text>
-                                </Group>
-                            ))}
-                        </div>
                     </Group>
                 </Card>
 
-                <Card shadow="sm">
+                <Card shadow="sm" withBorder radius={12} padding={16} mb={16}>
+                    <Title order={3} mb="md">Demographics</Title>
+                    <Group grow>
+                        <Card shadow="sm" withBorder radius={12} padding={16}> 
+                            <Text fw={700} mb="xs">Age Distribution</Text>
+                            <Container fluid>
+                                <BarChart
+                                    h={300}
+                                    w={300}
+                                    data={ageData}
+                                    dataKey="age"
+                                    series={[
+                                        { name: 'Visitors', color: 'blue.6' }
+                                    ]}
+                                    tickLine="y"
+                                    yAxisLabel="Number of Visitors"
+                                    xAxisLabel="Age Groups"
+                                    withTooltip={false}
+                                />
+                            </Container>  
+                        </Card>
+                        <Card shadow="sm" withBorder radius={12} padding={16}>
+                            <Text fw={700} mb="xs">Gender Distribution</Text>
+                            <Container fluid={true}>
+                                <DonutChart data={genderData} size={250}/>
+                            </Container>
+                        </Card>
+                    </Group>
+                </Card>
+
+                <Card shadow="sm" withBorder radius={12} padding={16}>
                     <Title order={3} mb="md">Attendee List</Title>
-                    <Table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Age</th>
-                                <th>Gender</th>
-                                <th>Budget Preference</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {eventStats.attendees.map((attendee) => (
-                                <tr key={attendee.id}>
-                                    <td>{attendee.name}</td>
-                                    <td>{attendee.age}</td>
-                                    <td>{attendee.gender}</td>
-                                    <td>{attendee.budgetPreference}</td>
-                                </tr>
-                            ))}
-                        </tbody>
+                    <Table highlightOnHover>
+                        <Table.Thead>
+                            <Table.Tr>
+                            <Table.Th>Name</Table.Th>
+                            <Table.Th>Age</Table.Th>
+                            <Table.Th>Gender</Table.Th>
+                            <Table.Th>Budget Preference</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>{attendeeRows}</Table.Tbody>
                     </Table>
                 </Card>
             </Stack>

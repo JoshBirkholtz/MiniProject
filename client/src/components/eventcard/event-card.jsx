@@ -179,6 +179,9 @@ function EventCard({ event }) {
     };
 
     const formatGoogleMapsUrl = (location) => {
+        if (!location?.placeName) {
+            return '#'; // Return a fallback URL if location or placeName is undefined
+        }
         const query = location.placeName;
         return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
     };
