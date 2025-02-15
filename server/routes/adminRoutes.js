@@ -153,8 +153,6 @@ router.get('/events/:eventId/stats', authenticateUser, isAdmin, async (req, res)
             attendees
         };
 
-        console.log(stats)
-
         res.json(stats);
     } catch (error) {
         console.error('Event Stats Error:', error);

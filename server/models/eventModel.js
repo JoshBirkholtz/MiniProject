@@ -2,6 +2,8 @@
 const admin = require('../config/firebase-config');
 const db = admin.firestore();
 const RSVPModel = require('./rsvpModel');
+const EmailService = require('../utils/emailService');
+const UserModel = require('../models/userModel');
 
 class EventModel {
     static async getAllEvents() {
@@ -80,6 +82,11 @@ class EventModel {
 
     static async rsvpToEvent(eventId, userId) {
         try {
+
+            // Get user and event details
+            const user = await UserModel.getUserById(userId);
+            const event = await this.getEventById(eventId);
+
             // Check if user has already RSVP'd
             const hasRSVP = await RSVPModel.checkUserRSVP(userId, eventId);
             if (hasRSVP) {
@@ -106,6 +113,18 @@ class EventModel {
                 // Create RSVP using RSVPModel
                 await RSVPModel.createRSVP(userId, eventId);
             });
+
+            // Send confirmation email to user
+            await EmailService.sendRSVPConfirmation(
+                user.email,
+                event.name,
+                {
+                    date: new Date(event.startDate._seconds * 1000).toLocaleDateString(),
+                    time: new Date(event.startDate._seconds * 1000).toLocaleTimeString(),
+                    location: event.location.placeName
+                }
+            );
+
             return true;
         } catch (error) {
             throw error;
