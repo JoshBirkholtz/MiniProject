@@ -44,7 +44,7 @@ const Navbar: React.FC = () => {
           <div className="flex space-x-7">
             <div>
               <Link to="/" className="flex items-center py-4 px-2">
-                <img src="./public/CapeTownLogo.png" width={40} height={40}></img>
+                <img src="/CapeTownLogo.svg" width={40} height={40}></img>
               </Link>
             </div>
             <div className="hidden md:flex items-center space-x-1">
@@ -64,20 +64,29 @@ const Navbar: React.FC = () => {
                   </Link>
                 </>
               ) : (
-                <>
+                currentUser ? (
+                  <>
+                    <Link
+                      to="/"
+                      className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      to="/my-events"
+                      className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
+                    >
+                      My Events
+                    </Link>
+                  </>
+                ) : (
                   <Link
-                    to="/"
-                    className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                  >
-                    Home
+                      to="/"
+                      className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
+                    >
+                      Home
                   </Link>
-                  <Link
-                    to="/my-events"
-                    className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                  >
-                    My Events
-                  </Link>
-                </>
+                ) 
               )}
               
             </div>
