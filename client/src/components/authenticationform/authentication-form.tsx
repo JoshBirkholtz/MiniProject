@@ -29,6 +29,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { auth } from '../../config/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
+import { showSuccessNotification } from '../notifications/success-notification';
+import { showErrorNotification } from '../notifications/error-notification';
+
 const genders = ['Male', 'Female', 'Prefer not to say'];
 
 function AuthenticationForm(props: PaperProps) {
@@ -109,38 +112,61 @@ function AuthenticationForm(props: PaperProps) {
                     })
                 });
 
+                // Show success notification
+                if (response.ok) {
+                    showSuccessNotification('Registration Successfull!');
+                }
+
                 if (!response.ok) {
                     throw new Error('Registration failed');
                 }
             } else {
                 // Login flow
-                const userCredential = await signInWithEmailAndPassword(
-                    auth, 
-                    values.email, 
-                    values.password
-                );
-                
-                const idToken = await userCredential.user.getIdToken();
-                
-                const response = await fetch('http://localhost:5500/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${idToken}`
-                    },
-                    credentials: 'include'
-                });
+                try {
+                    const userCredential = await signInWithEmailAndPassword(
+                        auth, 
+                        values.email, 
+                        values.password
+                    );
+                    
+                    const idToken = await userCredential.user.getIdToken();
+                    
+                    const response = await fetch('http://localhost:5500/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${idToken}`
+                        },
+                        credentials: 'include'
+                    });
 
-                if (!response.ok) {
-                    throw new Error('Login failed');
+                    if (response.ok) {
+                        showSuccessNotification('Login successful!');
+                        navigate('/'); // Only navigate on success
+                    } else {
+                        showErrorNotification('Login failed. Please try again.');
+                    }
+                } catch (error) {
+                    // Handle Firebase auth errors
+                    let errorMessage = 'Invalid email or password';
+                    if (error instanceof Error) {
+                        if (error.message.includes('auth/invalid-credential')) {
+                            errorMessage = 'Invalid email or password';
+                        } else if (error.message.includes('auth/user-not-found')) {
+                            errorMessage = 'No account exists with this email';
+                        } else if (error.message.includes('auth/wrong-password')) {
+                            errorMessage = 'Incorrect password';
+                        }
+                    }
+                    showErrorNotification(errorMessage);
+                    setError(errorMessage);
                 }
             }
-
-            // If successful, redirect to home page
-            navigate('/');
-        } catch (err) {
-            console.error('Auth Error:', err);
-            setError(err instanceof Error ? err.message : 'Authentication failed');
+        } catch (error) {
+            // Handle other errors
+            const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+            showErrorNotification(errorMessage);
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

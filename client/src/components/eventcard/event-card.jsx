@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import WeatherWidget from '../weather/weather-widget';
 import RatingModal from '../ratingmodal/rating-modal';
 
+import { showSuccessNotification } from '../notifications/success-notification';
+import { showErrorNotification } from '../notifications/error-notification';
+
 const formatFirebaseDateTime = (timestamp) => {
     if (!timestamp) return { date: 'TBA', time: 'TBA' };
     const date = new Date(timestamp._seconds * 1000);
@@ -121,14 +124,13 @@ function EventCard({ event }) {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
                     },
-                    withCredentials: true // Important for cookies
+                    withCredentials: true
                 }
             );
 
             if (response.data.message === 'RSVP successful') {
-                alert('Successfully RSVP\'d to event!');
+                showSuccessNotification('Successfully RSVP\'d to event!');
                 setHasRSVPd(true);
-                // You might want to update the event's attendee count locally
                 event.currentAttendees += 1;
             }
         } catch (error) {
@@ -136,7 +138,7 @@ function EventCard({ event }) {
             if (error.response?.status === 401) {
                 navigate('/login');
             } else {
-                alert(error.response?.data?.error || 'Failed to RSVP for event');
+                showErrorNotification(error.response?.data?.error || 'Failed to RSVP for event');
             }
         } finally {
             setIsRsvping(false);
@@ -163,11 +165,12 @@ function EventCard({ event }) {
             );
     
             if (response.data.message === 'RSVP cancelled') {
+                showSuccessNotification('Successfully cancelled RSVP to event!');
                 setHasRSVPd(false);
-                event.currentAttendees += 1;
+                event.currentAttendees -= 1;
             }
         } catch (error) {
-            console.error('Cancel RSVP Error:', error);
+            showErrorNotification(error || 'Failed cancel RSVP for event');
         } finally {
             setIsCanceling(false);
         }
@@ -201,8 +204,10 @@ function EventCard({ event }) {
             );
             setUserRating({ rating, comment });
             setIsRatingModalOpen(false);
+            showSuccessNotification('Successfully rated event!');
         } catch (error) {
             console.error('Rating Error:', error);
+            showErrorNotification(error || 'Failed to submit rating');
             throw new Error(error.response?.data?.error || 'Failed to submit rating');
         }
     };
@@ -222,8 +227,10 @@ function EventCard({ event }) {
             );
             // Refresh the events list or update UI
             window.location.reload();
+            showSuccessNotification('Successfully archived event!');
         } catch (error) {
             console.error('Archive Error:', error);
+            showErrorNotification(error || 'Failed to archive event');
         }
     };
     
@@ -240,10 +247,11 @@ function EventCard({ event }) {
                 }
             );
             // Refresh the events list or update UI
+            showSuccessNotification('Successfully deleted event!');
             window.location.reload();
         } catch (error) {
             console.error('Delete Error:', error);
-            alert('Failed to delete event');
+            showErrorNotification(error || 'Failed to delete event');
         }
     };
 
@@ -254,6 +262,7 @@ function EventCard({ event }) {
                     src={event.imageUrl || "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"}
                     height={160}
                     alt={name}
+                    fallbackSrc="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
                 />
                 {location?.latitude && location?.longitude && (
                     <div style={{ 

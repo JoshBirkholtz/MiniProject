@@ -49,8 +49,8 @@ function DashboardPage() {
         <div className="container mx-auto px-4 py-8">
             <Title order={1} mb="xl">Admin Dashboard</Title>
 
-            <Tabs defaultValue="festival">
-                <Tabs.List>
+            <Tabs defaultValue="festival" variant="pills">
+                <Tabs.List justify="center" grow>
                     <Tabs.Tab 
                         value="festival" 
                         leftSection={<IconChartBar size={16} />}

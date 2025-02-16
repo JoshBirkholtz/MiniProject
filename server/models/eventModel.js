@@ -1,6 +1,6 @@
-// models/eventModel.js
 const admin = require('../config/firebase-config');
 const db = admin.firestore();
+const storage = admin.storage();
 const RSVPModel = require('./rsvpModel');
 const EmailService = require('../utils/emailService');
 const UserModel = require('../models/userModel');
@@ -73,7 +73,24 @@ class EventModel {
 
     static async deleteEvent(eventId) {
         try {
+
+            const eventDoc = await db.collection('events').doc(eventId).get();
+            const eventData = eventDoc.data();
+
             await db.collection('events').doc(eventId).delete();
+
+            if (eventData.imageUrl) {
+                try {
+                    // Create a reference to the file
+                    const fileRef = storage.bucket().file(`event-thumbnails/${eventId}`);
+                    
+                    // Delete the file
+                    await fileRef.delete();
+                } catch (storageError) {
+                    console.error('Failed to delete thumbnail:', storageError);
+                }
+            }
+
             return true;
         } catch (error) {
             throw error;

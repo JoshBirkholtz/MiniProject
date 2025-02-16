@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TextInput, NumberInput, Textarea, Button, Stack, Paper, Title, Select } from '@mantine/core';
+import { TextInput, NumberInput, Textarea, Button, Stack, Paper, Title, Select, FileInput } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import axios from 'axios';
 import LocationPicker from '../components/locationpicker/location-picker';
 import { useAuth } from '../contexts/AuthContext';
-import { IconArchive, IconTrash, IconEdit } from '@tabler/icons-react';
+import { storage } from '../config/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+import { showSuccessNotification } from '../components/notifications/success-notification';
+import { showErrorNotification } from '../components/notifications/error-notification';
 
 const CRUDEventsPage = () => {
     const { eventId } = useParams();
@@ -32,6 +36,7 @@ const CRUDEventsPage = () => {
             },
             category: '',
             imageUrl: '',
+            thumbnail: null,
             status: 'active'
         },
         validate: {
@@ -83,11 +88,38 @@ const CRUDEventsPage = () => {
         fetchEvent();
     }, [eventId, currentUser]);
 
+    const uploadImage = async (file) => {
+        if (!file) return null;
+
+        try {
+            // Create a unique filename using timestamp
+            const filename = `event-thumbnails/${eventId}`;
+            const storageRef = ref(storage, filename);
+            
+            // Upload file
+            await uploadBytes(storageRef, file);
+            
+            // Get download URL
+            const downloadURL = await getDownloadURL(storageRef);
+            showSuccessNotification('Successfully uploaded file!');
+            return downloadURL;
+        } catch (error) {
+            console.error('Image Upload Error:', error);
+            showErrorNotification('Image Upload Error:', error);
+            throw new Error('Failed to upload image');
+        }
+    };
+
     const handleSubmit = async (values) => {
         setLoading(true);
         setError('');
 
         try {
+            let imageUrl = values.imageUrl;
+            if (values.thumbnail) {
+                imageUrl = await uploadImage(values.thumbnail);
+            }
+
             const idToken = await currentUser.getIdToken();
             const endpoint = eventId 
                 ? `http://localhost:5500/api/admin/events/${eventId}`
@@ -101,13 +133,18 @@ const CRUDEventsPage = () => {
                 headers: {
                     'Authorization': `Bearer ${idToken}`
                 },
-                data: values,
+                data: {
+                    ...values,
+                    imageUrl
+                },
                 withCredentials: true
             });
 
             navigate('/my-events');
+            showSuccessNotification('Successfully saved event!');
         } catch (error) {
             console.error('Submit Error:', error);
+            showErrorNotification(error.response?.data?.error || 'Failed to save event');
             setError(error.response?.data?.error || 'Failed to save event');
         } finally {
             setLoading(false);
@@ -167,15 +204,18 @@ const CRUDEventsPage = () => {
 
                         <Select
                             label="Category"
+                            required
                             placeholder="Select event category"
                             data={['Art', 'Fashion', 'Beer', 'Food', 'Music']}
                             {...form.getInputProps('category')}
                         />
 
-                        <TextInput
-                            label="Image URL"
-                            placeholder="Enter image URL"
-                            {...form.getInputProps('imageUrl')}
+                        <FileInput
+                            label="Thumbnail"
+                            accept="image/*"
+                            withAsterisk
+                            placeholder="Select thumbnail"
+                            {...form.getInputProps('thumbnail')}
                         />
 
                         {error && (
