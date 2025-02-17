@@ -40,6 +40,9 @@ function EventCard({ event }) {
     const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
     const [userRating, setUserRating] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [attendeesModalOpen, setAttendeesModalOpen] = useState(false);
+    const [attendeesList, setAttendeesList] = useState([]);
+    const [loadingAttendees, setLoadingAttendees] = useState(false);
 
   // Check if user is admin when component mounts
   useEffect(() => {
@@ -255,6 +258,28 @@ function EventCard({ event }) {
         }
     };
 
+    const fetchAttendees = async () => {
+        setLoadingAttendees(true);
+        try {
+            const idToken = await currentUser?.getIdToken();
+            const response = await axios.get(
+                `http://localhost:5500/api/admin/events/${event.id}/stats`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    withCredentials: true
+                }
+            );
+            setAttendeesList(response.data.attendees || []);
+        } catch (error) {
+            console.error('Fetch Attendees Error:', error);
+            showErrorNotification('Failed to fetch attendees');
+        } finally {
+            setLoadingAttendees(false);
+        }
+    };
+
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section style={{ position: 'relative' }}>
@@ -289,7 +314,16 @@ function EventCard({ event }) {
                     <Badge color="blue">
                         {event.category || 'Uncategorized'}
                     </Badge>
-                    <Badge color={status === 'active' ? 'green' : 'gray'}>
+                    <Badge 
+                        color={status === 'active' ? 'green' : 'gray'}
+                        style={{ cursor: isAdmin ? 'pointer' : 'default' }}
+                        onClick={() => {
+                            if (isAdmin) {
+                                setAttendeesModalOpen(true);
+                                fetchAttendees();
+                            }
+                        }}
+                    >
                         {currentAttendees}/{maxAttendees} Attendees
                     </Badge>
                 </Group>
@@ -451,6 +485,40 @@ function EventCard({ event }) {
                         Delete
                     </Button>
                 </Group>
+            </Modal>
+
+            <Modal
+                opened={attendeesModalOpen}
+                onClose={() => setAttendeesModalOpen(false)}
+                title="Event Attendees"
+                centered
+            >
+                {loadingAttendees ? (
+                    <Text>Loading attendees...</Text>
+                ) : (
+                    attendeesList.length > 0 ? (
+                        <div>
+                            {attendeesList.map((attendee, index) => (
+                                <Group 
+                                    key={attendee.rsvpId} 
+                                    p="sm" 
+                                    style={{
+                                        borderBottom: index !== attendeesList.length - 1 ? '1px solid #eee' : 'none'
+                                    }}
+                                >
+                                    <div>
+                                        <Text>{attendee.name}</Text>
+                                        <Text size="xs" c="dimmed">
+                                            Age: {attendee.age} • {attendee.gender}
+                                        </Text>
+                                    </div>
+                                </Group>
+                            ))}
+                        </div>
+                    ) : (
+                        <Text>No attendees yet</Text>
+                    )
+                )}
             </Modal>
 
             <RatingModal

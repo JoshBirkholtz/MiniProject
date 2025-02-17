@@ -64,7 +64,7 @@ const MyEventsPage = () => {
         };
     
         fetchEvents();
-    }, [currentUser, isAdmin]);
+    }, [isAdmin, currentUser]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;

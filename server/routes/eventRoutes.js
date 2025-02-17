@@ -11,7 +11,6 @@ router.get('/', async (req, res) => {
     try {
         const events = await EventModel.getAllEvents();
         res.json(events);
-        console.log(events);
     } catch (error) {
         console.error('Get Events Error:', error);
         res.status(500).json({ error: 'Failed to fetch events' });
