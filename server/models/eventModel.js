@@ -73,18 +73,37 @@ class EventModel {
 
     static async deleteEvent(eventId) {
         try {
-
+            // Get event data and check if it exists
             const eventDoc = await db.collection('events').doc(eventId).get();
+            if (!eventDoc.exists) {
+                throw new Error('Event not found');
+            }
+            
             const eventData = eventDoc.data();
 
-            await db.collection('events').doc(eventId).delete();
+            // Start a batch write
+            const batch = db.batch();
 
+            // 1. Delete the event document
+            const eventRef = db.collection('events').doc(eventId);
+            batch.delete(eventRef);
+
+            // 2. Get and delete all RSVPs for this event
+            const rsvpsSnapshot = await db.collection('rsvps')
+                .where('eventId', '==', eventId)
+                .get();
+            
+            rsvpsSnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+
+            // 3. Execute the batch
+            await batch.commit();
+
+            // 4. Delete the image if it exists (outside batch as it's Storage operation)
             if (eventData.imageUrl) {
                 try {
-                    // Create a reference to the file
                     const fileRef = storage.bucket().file(`event-thumbnails/${eventId}`);
-                    
-                    // Delete the file
                     await fileRef.delete();
                 } catch (storageError) {
                     console.error('Failed to delete thumbnail:', storageError);
@@ -93,6 +112,7 @@ class EventModel {
 
             return true;
         } catch (error) {
+            console.error('Delete Event Error:', error);
             throw error;
         }
     }
@@ -179,6 +199,9 @@ class EventModel {
         try {
             // Get all RSVPs for this user
             const userRSVPs = await RSVPModel.getRSVPsByUserId(userId);
+
+            // Update any events that should be marked as completed
+            await this.updateEventStatuses();
             
             // Get all events for these RSVPs
             const eventPromises = userRSVPs.map(async rsvp => {

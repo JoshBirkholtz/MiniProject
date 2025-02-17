@@ -3,13 +3,14 @@ const admin = require('../config/firebase-config');
 const db = admin.firestore();
 
 class RatingModel {
-    static async createRating(eventId, userId, rating, comment) {
+    static async createRating(eventId, userId, rating, recommendation, comment) {
         try {
             const ratingRef = db.collection('ratings').doc();
             await ratingRef.set({
                 eventId,
                 userId,
                 rating,
+                recommendation,
                 comment,
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
             });

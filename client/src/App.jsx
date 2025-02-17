@@ -50,7 +50,7 @@ function App() {
   return (
     <AuthProvider>
       <MantineProvider>
-        <Notifications position="top-right" zIndex={2000} />
+        <Notifications position="bottom-center" zIndex={2000} />
         <Router>
           <AppContent />
         </Router>

@@ -11,6 +11,7 @@ router.get('/', async (req, res) => {
     try {
         const events = await EventModel.getAllEvents();
         res.json(events);
+        console.log(events);
     } catch (error) {
         console.error('Get Events Error:', error);
         res.status(500).json({ error: 'Failed to fetch events' });
@@ -76,7 +77,7 @@ router.post('/:eventId/rate', authenticateUser, async (req, res) => {
     try {
         const { eventId } = req.params;
         const userId = req.user.uid;
-        const { rating, comment } = req.body;
+        const { rating, recommendation, comment } = req.body;
 
         // Check if user has already rated this event
         const existingRating = await RatingModel.getUserRatingForEvent(userId, eventId);
@@ -97,7 +98,7 @@ router.post('/:eventId/rate', authenticateUser, async (req, res) => {
             return res.status(403).json({ error: 'You can only rate events that have ended' });
         }
 
-        await RatingModel.createRating(eventId, userId, rating, comment);
+        await RatingModel.createRating(eventId, userId, rating, recommendation, comment);
         res.json({ message: 'Rating submitted successfully' });
     } catch (error) {
         console.error('Rate Event Error:', error);

@@ -48,9 +48,9 @@ function MapModal({ isOpen, onClose, events }) {
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
                         <div style="padding: 10px;">
-                            <h3 style="margin: 0 0 8px 0;">${event.name}</h3>
+                            <h2 style="margin: 0 0 8px 0;">${event.name}</h3>
                             <p style="margin: 0 0 8px 0;">${event.description}</p>
-                            <p style="margin: 0;">
+                            <p style="margin: 0 0 4px 0;">
                                 <strong>Location:</strong> ${event.location.placeName}<br>
                                 <strong>Attendees:</strong> ${event.currentAttendees}/${event.maxAttendees}
                             </p>

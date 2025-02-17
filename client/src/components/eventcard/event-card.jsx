@@ -189,12 +189,12 @@ function EventCard({ event }) {
         return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
     };
 
-    const handleRateEvent = async (rating, comment) => {
+    const handleRateEvent = async (rating, recommendation, comment) => {
         try {
             const idToken = await currentUser.getIdToken();
             await axios.post(
                 `http://localhost:5500/api/events/${event.id}/rate`,
-                { rating, comment },
+                { rating, recommendation, comment },
                 {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
@@ -202,7 +202,7 @@ function EventCard({ event }) {
                     withCredentials: true
                 }
             );
-            setUserRating({ rating, comment });
+            setUserRating({ rating, recommendation, comment });
             setIsRatingModalOpen(false);
             showSuccessNotification('Successfully rated event!');
         } catch (error) {

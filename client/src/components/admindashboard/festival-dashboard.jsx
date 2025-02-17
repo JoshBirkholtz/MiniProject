@@ -123,7 +123,7 @@ function FestivalDashboard() {
                                     tickLine="y"
                                     yAxisLabel="Number of Visitors"
                                     xAxisLabel="Age Groups"
-                                    withTooltip={false}
+                                    withTooltip
                                 />
                             </Container>  
                         </Card>
