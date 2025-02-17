@@ -20,13 +20,13 @@ const AppContent = () => {
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (!currentUser) return
-      const token = await currentUser.getIdTokenResult()
-      setIsAdmin(token.claims?.role === 'admin')
-    }
+        if (!currentUser) return;
+        const token = await currentUser.getIdTokenResult();
+        setIsAdmin(!!token.claims.admin);
+    };
 
-    checkAdminStatus()
-  }, [currentUser])
+      checkAdminStatus();
+  }, [currentUser]);
 
   return (
     <div className="App">

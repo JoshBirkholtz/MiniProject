@@ -41,13 +41,13 @@ function EventCard({ event }) {
     const [userRating, setUserRating] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-    // Check if user is admin when component mounts
-    useEffect(() => {
-        const checkAdminStatus = async () => {
-            if (!currentUser) return;
-            const token = await currentUser.getIdTokenResult();
-            setIsAdmin(token.claims?.role === 'admin');
-        };
+  // Check if user is admin when component mounts
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+        if (!currentUser) return;
+        const token = await currentUser.getIdTokenResult();
+        setIsAdmin(!!token.claims.admin);
+    };
 
         checkAdminStatus();
     }, [currentUser]);
@@ -55,7 +55,7 @@ function EventCard({ event }) {
     // Check if user has RSVP'd when component mounts
     useEffect(() => {
         const checkRSVPStatus = async () => {
-            if (!currentUser || isAdmin) return;
+            if (!currentUser) return;
 
             try {
                 const idToken = await currentUser.getIdToken();

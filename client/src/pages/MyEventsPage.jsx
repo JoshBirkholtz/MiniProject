@@ -14,23 +14,36 @@ const MyEventsPage = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
 
-    // Check if user is admin when component mounts
+    // First useEffect to check admin status
     useEffect(() => {
         const checkAdminStatus = async () => {
-            if (!currentUser) return;
-            const token = await currentUser.getIdTokenResult();
-            setIsAdmin(token.claims?.role === 'admin');
+            if (!currentUser) {
+                setIsAdmin(false);
+                return;
+            }
+            try {
+                const token = await currentUser.getIdTokenResult(true); // Force refresh
+                setIsAdmin(!!token.claims.admin);
+            } catch (error) {
+                console.error('Admin Check Error:', error);
+                setIsAdmin(false);
+            }
         };
 
         checkAdminStatus();
     }, [currentUser]);
 
+    // Second useEffect to fetch events
     useEffect(() => {
         const fetchEvents = async () => {
-            if (!currentUser) return;
+            if (!currentUser) {
+                setMyEvents([]);
+                setLoading(false);
+                return;
+            }
     
             try {
-                const idToken = await currentUser.getIdToken();
+                const idToken = await currentUser.getIdToken(true); // Force refresh
                 const endpoint = isAdmin ? 
                     'http://localhost:5500/api/admin/events' : 
                     'http://localhost:5500/api/events/my-events';
@@ -42,10 +55,10 @@ const MyEventsPage = () => {
                     withCredentials: true
                 });
                 setMyEvents(response.data);
-                setLoading(false);
             } catch (error) {
                 console.error('Fetch Events Error:', error);
                 setError('Failed to fetch events');
+            } finally {
                 setLoading(false);
             }
         };

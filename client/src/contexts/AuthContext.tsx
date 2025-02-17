@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const checkSession = async () => {
         try {
-            const response = await axios.get('http://localhost:5500/api/check-session', {
+            const response = await axios.get('http://localhost:5500/api/auth/check-session', {
                 withCredentials: true
             });
             

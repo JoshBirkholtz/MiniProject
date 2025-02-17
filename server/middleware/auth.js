@@ -21,7 +21,7 @@ const isAdmin = async (req, res, next) => {
       const { user } = req;
       const userRecord = await admin.auth().getUser(user.uid);
       
-      if (userRecord.customClaims?.role === 'admin') {
+      if (!!userRecord.customClaims.admin) {
           next();
       } else {
           res.status(403).json({ error: 'Not authorized as admin' });

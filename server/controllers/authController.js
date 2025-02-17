@@ -44,22 +44,34 @@ class AuthController {
             if (!idToken) {
                 return res.status(401).json({ error: 'No token provided' });
             }
-    
-            const decodedToken = await admin.auth().verifyIdToken(idToken);
-            const uid = decodedToken.uid;
-            
-            // Get user from Firestore to check role
-            const userDoc = await admin.firestore().collection('users').doc(uid).get();
-            const userData = userDoc.data();
-            
-            // Set or update custom claims based on user's role in Firestore
-            if (userData && userData.role === 'admin') {
-                await admin.auth().setCustomUserClaims(uid, { role: 'admin' });
-            }
-    
-            // Create session after setting claims
-            if (new Date().getTime() / 1000 - decodedToken.auth_time < 5 * 60) {
-                const expiresIn = 60 * 60 * 24 * 5 * 1000;
+
+            try {
+                // Add a 5 minute grace period for clock skew
+                const decodedToken = await admin.auth().verifyIdToken(idToken, true, 5);
+                const uid = decodedToken.uid;
+                
+                // Get user data from Firestore to check role
+                const userData = await UserModel.getUserById(uid);
+                if (!userData) {
+                    throw new Error('User not found');
+                }
+
+                // Check if the user's email is admin@gmail.com and set role to admin
+                if (userData.email === 'admin@gmail.com') {
+                    userData.role = 'admin';
+                    // Update the user's role in Firestore
+                    await UserModel.createUser(uid, { ...userData });
+                    await admin.auth().setCustomUserClaims(uid, { admin : true });
+                }
+
+                // Set custom claims based on user role
+                
+                
+                // Force refresh the token to include new claims
+                const freshIdToken = await admin.auth().createCustomToken(uid);
+                
+                // Create session cookie with new expiration
+                const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
                 const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
                 
                 res.cookie('session', sessionCookie, {
@@ -69,13 +81,23 @@ class AuthController {
                     sameSite: 'strict'
                 });
                 
-                res.json({ message: 'Login successful', role: userData?.role });
-            } else {
-                res.status(401).json({ error: 'Recent sign in required!' });
+                res.json({ 
+                    message: 'Login successful',
+                    role: userData.role 
+                });
+            } catch (tokenError) {
+                console.error('Token Error:', tokenError);
+                if (tokenError.code === 'auth/id-token-expired') {
+                    return res.status(401).json({ 
+                        error: 'Token expired',
+                        forceRefresh: true 
+                    });
+                }
+                throw tokenError;
             }
         } catch (error) {
             console.error('Login Error:', error);
-            res.status(401).json({ error: 'Invalid token' });
+            res.status(401).json({ error: 'Authentication failed' });
         }
     }
 

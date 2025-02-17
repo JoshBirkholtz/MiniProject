@@ -18,11 +18,11 @@ const Navbar: React.FC = () => {
     const checkAdminStatus = async () => {
         if (!currentUser) return;
         const token = await currentUser.getIdTokenResult();
-        setIsAdmin(token.claims?.role === 'admin');
+        setIsAdmin(!!token.claims.admin);
     };
 
-    checkAdminStatus();
-}, [currentUser]);
+      checkAdminStatus();
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {

@@ -84,17 +84,9 @@ function AuthenticationForm(props: PaperProps) {
         setLoading(true);
         try {
             if (type === 'register') {
-                // First create the user in Firebase
-                const userCredential = await createUserWithEmailAndPassword(
-                    auth, 
-                    values.email, 
-                    values.password
-                );
-                
-                // Get the ID token
-                const idToken = await userCredential.user.getIdToken();
-                
-                // Send additional user data to your backend
+                // Registration flow
+                const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+                const idToken = await userCredential.user.getIdToken(true); // Force refresh token
                 const response = await fetch('http://localhost:5500/api/auth/register', {
                     method: 'POST',
                     headers: {
@@ -112,25 +104,20 @@ function AuthenticationForm(props: PaperProps) {
                     })
                 });
 
-                // Show success notification
                 if (response.ok) {
-                    showSuccessNotification('Registration Successfull!');
-                }
-
-                if (!response.ok) {
+                    showSuccessNotification('Registration successful!');
+                } else {
                     throw new Error('Registration failed');
                 }
             } else {
                 // Login flow
                 try {
-                    const userCredential = await signInWithEmailAndPassword(
-                        auth, 
-                        values.email, 
-                        values.password
-                    );
+                    // Get user credentials
+                    const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
                     
-                    const idToken = await userCredential.user.getIdToken();
-                    
+                    // Force refresh the token immediately
+                    const idToken = await userCredential.user.getIdToken(true);
+
                     const response = await fetch('http://localhost:5500/api/auth/login', {
                         method: 'POST',
                         headers: {
@@ -141,30 +128,28 @@ function AuthenticationForm(props: PaperProps) {
                     });
 
                     if (response.ok) {
+                        const data = await response.json();
                         showSuccessNotification('Login successful!');
-                        navigate('/'); // Only navigate on success
+                        navigate('/');
                     } else {
-                        showErrorNotification('Login failed. Please try again.');
+                        const errorData = await response.json();
+                        showErrorNotification(errorData.message || 'Login failed. Please try again.');
                     }
                 } catch (error) {
-                    // Handle Firebase auth errors
-                    let errorMessage = 'Invalid email or password';
-                    if (error instanceof Error) {
-                        if (error.message.includes('auth/invalid-credential')) {
-                            errorMessage = 'Invalid email or password';
-                        } else if (error.message.includes('auth/user-not-found')) {
-                            errorMessage = 'No account exists with this email';
-                        } else if (error.message.includes('auth/wrong-password')) {
-                            errorMessage = 'Incorrect password';
-                        }
-                    }
-                    showErrorNotification(errorMessage);
-                    setError(errorMessage);
+                    // ... error handling
                 }
             }
         } catch (error) {
-            // Handle other errors
-            const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+            let errorMessage = 'Invalid email or password';
+            if (error instanceof Error) {
+                if (error.message.includes('auth/invalid-credential')) {
+                    errorMessage = 'Invalid email or password';
+                } else if (error.message.includes('auth/user-not-found')) {
+                    errorMessage = 'No account exists with this email';
+                } else if (error.message.includes('auth/wrong-password')) {
+                    errorMessage = 'Incorrect password';
+                }
+            }
             showErrorNotification(errorMessage);
             setError(errorMessage);
         } finally {
