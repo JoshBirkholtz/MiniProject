@@ -285,7 +285,7 @@ function EventCard({ event }) {
             <Card.Section style={{ position: 'relative' }}>
                 <Image
                     src={event.imageUrl || "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"}
-                    height={160}
+                    h={200}
                     alt={name}
                     fallbackSrc="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
                 />
@@ -345,7 +345,7 @@ function EventCard({ event }) {
                     style={{ 
                         color: '#228be6', 
                         textDecoration: 'none',
-                        maxWidth: '70%',  // Adjust this value as needed
+                        maxWidth: '70%', 
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -454,7 +454,7 @@ function EventCard({ event }) {
                             fullWidth
                             mt="md"
                             radius="md"
-                            disabled={currentAttendees >= maxAttendees || isRsvping || isCanceling}
+                            disabled={ (!hasRSVPd && currentAttendees >= maxAttendees) || isRsvping || isCanceling}
                             onClick={hasRSVPd ? handleCancelRSVP : handleRSVP}
                             loading={isRsvping || isCanceling}
                         >

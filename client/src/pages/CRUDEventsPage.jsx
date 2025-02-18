@@ -93,7 +93,7 @@ const CRUDEventsPage = () => {
 
         try {
             // Create a unique filename using timestamp
-            const filename = `event-thumbnails/${eventId}`;
+            const filename = `event-thumbnails/${Date.now()}-${file.name}`;
             const storageRef = ref(storage, filename);
             
             // Upload file

@@ -136,7 +136,18 @@ function AuthenticationForm(props: PaperProps) {
                         showErrorNotification(errorData.message || 'Login failed. Please try again.');
                     }
                 } catch (error) {
-                    // ... error handling
+                    let errorMessage = 'Invalid email or password';
+                    if (error instanceof Error) {
+                        if (error.message.includes('auth/invalid-credential')) {
+                            errorMessage = 'Invalid email or password';
+                        } else if (error.message.includes('auth/user-not-found')) {
+                            errorMessage = 'No account exists with this email';
+                        } else if (error.message.includes('auth/wrong-password')) {
+                            errorMessage = 'Incorrect password';
+                        }
+                    }
+                    showErrorNotification(errorMessage);
+                    setError(errorMessage);
                 }
             }
         } catch (error) {
