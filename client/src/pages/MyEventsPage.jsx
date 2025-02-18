@@ -11,6 +11,7 @@ const MyEventsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [adminCheckComplete, setAdminCheckComplete] = useState(false);
     const { currentUser } = useAuth();
     const navigate = useNavigate();
 
@@ -24,6 +25,7 @@ const MyEventsPage = () => {
         const checkAdminStatus = async () => {
             if (!currentUser) {
                 setIsAdmin(false);
+                setAdminCheckComplete(true);
                 return;
             }
             try {
@@ -32,6 +34,8 @@ const MyEventsPage = () => {
             } catch (error) {
                 console.error('Admin Check Error:', error);
                 setIsAdmin(false);
+            } finally {
+                setAdminCheckComplete(true);
             }
         };
 
@@ -41,12 +45,12 @@ const MyEventsPage = () => {
     // Second useEffect to fetch events
     useEffect(() => {
         const fetchEvents = async () => {
-            if (!currentUser) {
+            if (!currentUser || !adminCheckComplete) {
                 setMyEvents([]);
                 setLoading(false);
                 return;
             }
-    
+            setLoading(true);
             try {
                 const idToken = await currentUser.getIdToken(true); // Force refresh
                 const endpoint = isAdmin ? 
@@ -69,7 +73,7 @@ const MyEventsPage = () => {
         };
     
         fetchEvents();
-    }, [isAdmin, currentUser]);
+    }, [isAdmin, currentUser, adminCheckComplete]);
 
     const fetchAllAttendees = async () => {
         setLoadingAttendees(true);

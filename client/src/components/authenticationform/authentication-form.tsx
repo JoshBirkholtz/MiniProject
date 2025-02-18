@@ -106,6 +106,7 @@ function AuthenticationForm(props: PaperProps) {
 
                 if (response.ok) {
                     showSuccessNotification('Registration successful!');
+                    navigate("/");
                 } else {
                     throw new Error('Registration failed');
                 }
@@ -215,6 +216,7 @@ function AuthenticationForm(props: PaperProps) {
                                 required
                                 label="Age"
                                 placeholder="Your age"
+                                {...form.getInputProps('age')}
                             />
                             <Combobox
                                 store={combobox}

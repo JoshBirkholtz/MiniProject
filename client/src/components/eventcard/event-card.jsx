@@ -1,4 +1,4 @@
-import { Card, Image, Text, Badge, Button, Group, Divider, Menu, Notification, Modal, Table } from '@mantine/core';
+import { Card, Image, Text, Badge, Button, Group, Menu, Modal, Table, ScrollArea } from '@mantine/core';
 import { IconMapPin, IconCalendar, IconCalendarStats, IconCalendarX, IconEdit, IconSettings, IconArchive, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
@@ -330,9 +330,11 @@ function EventCard({ event }) {
                 </Group>
             </Group>
 
-            <Text size="sm" c="dimmed">
-                {description}
-            </Text>
+            <ScrollArea h={40} scrollbarSize={6}>
+                <Text size="sm" c="dimmed">
+                    {description}
+                </Text>
+            </ScrollArea>
 
             <Group gap="xs" mt="md">
                 <IconMapPin size={24} style={{ color: 'gray' }} />

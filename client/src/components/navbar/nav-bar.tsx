@@ -2,9 +2,9 @@
 
 import React from "react"
 import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
-import { IconLogout, IconUser } from '@tabler/icons-react'
+import { IconLogout, IconUser, IconCircleFilled } from '@tabler/icons-react'
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,16 +12,17 @@ const Navbar: React.FC = () => {
   const { currentUser, checkSession } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const location = useLocation();
 
   // Check if user is admin when component mounts
   useEffect(() => {
     const checkAdminStatus = async () => {
-        if (!currentUser) return;
-        const token = await currentUser.getIdTokenResult();
-        setIsAdmin(!!token.claims.admin);
+      if (!currentUser) return;
+      const token = await currentUser.getIdTokenResult();
+      setIsAdmin(!!token.claims.admin);
     };
 
-      checkAdminStatus();
+    checkAdminStatus();
   }, [currentUser]);
 
   const handleLogout = async () => {
@@ -37,83 +38,83 @@ const Navbar: React.FC = () => {
     }
   };
 
+  const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => {
+    const isActive = location.pathname === to;
+    
+    return (
+      <Link
+        to={to}
+        className={`py-4 px-2 font-semibold flex items-center gap-2 transition duration-300 ${
+          isActive 
+            ? 'text-[var(--mantine-color-blue-6)]' 
+            : 'text-gray-500 hover:text-[var(--mantine-color-blue-6)]'
+        }`}
+      >
+        {children}
+        {isActive && <IconCircleFilled size={8} className="text-[var(--mantine-color-blue-6)]" />}
+      </Link>
+    );
+  };
+
   return (
-    <nav className="bg-white shadow-lg">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex justify-between">
-          <div className="flex space-x-7">
-            <div>
-              <Link to="/" className="flex items-center py-4 px-2">
-                <img src="/CapeTownLogo.svg" width={40} height={40}></img>
+    <nav className="bg-white shadow-md border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex justify-between h-16">
+          <div className="flex space-x-8">
+            <div className="flex-shrink-0 flex items-center">
+              <Link to="/" className="flex items-center">
+                <img 
+                  src="/CapeTownLogo.svg" 
+                  width={40} 
+                  height={40} 
+                  alt="Cape Town Logo"
+                  className="h-8 w-auto"
+                />
               </Link>
             </div>
-            <div className="hidden md:flex items-center space-x-1">
-              { isAdmin ? (
+            
+            <div className="hidden md:flex items-center space-x-4">
+              {isAdmin ? (
                 <>
-                  <Link
-                    to="/my-events"
-                    className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                  >
-                    All Events
-                  </Link>
-                  <Link
-                    to="/admin/dashboard"
-                    className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                  >
-                    Dashboard
-                  </Link>
+                  <NavLink to="/my-events">All Events</NavLink>
+                  <NavLink to="/admin/dashboard">Dashboard</NavLink>
                 </>
               ) : (
                 currentUser ? (
                   <>
-                    <Link
-                      to="/"
-                      className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                    >
-                      Home
-                    </Link>
-                    <Link
-                      to="/my-events"
-                      className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                    >
-                      My Events
-                    </Link>
+                    <NavLink to="/">Home</NavLink>
+                    <NavLink to="/my-events">My Events</NavLink>
                   </>
                 ) : (
-                  <Link
-                      to="/"
-                      className="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                    >
-                      Home
-                  </Link>
-                ) 
+                  <NavLink to="/">Home</NavLink>
+                )
               )}
-              
             </div>
           </div>
-          <div className="hidden md:flex items-center space-x-3">
+
+          <div className="hidden md:flex items-center">
             {currentUser ? (
-              <div className="relative">
+              <div className="relative ml-3">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition duration-150"
+                  className="flex items-center justify-center h-10 w-10 rounded-full bg-[var(--mantine-color-blue-1)] hover:bg-[var(--mantine-color-blue-2)] transition-colors duration-200"
                 >
-                  <span className="text-gray-600">
+                  <span className="text-[var(--mantine-color-blue-7)] font-medium">
                     {currentUser.displayName?.[0].toUpperCase() || <IconUser size={20} />}
                   </span>
                 </button>
-                
+
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-10">
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
                       {currentUser.email}
                     </div>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center group"
                     >
-                      <IconLogout size={16} className="mr-2" />
-                      Logout
+                      <IconLogout size={16} className="mr-2 text-gray-400 group-hover:text-gray-500" />
+                      <span>Logout</span>
                     </button>
                   </div>
                 )}
@@ -121,67 +122,89 @@ const Navbar: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="py-2 px-2 font-medium text-gray-500 rounded hover:bg-green-500 hover:text-white transition duration-300"
+                className="ml-4 px-4 py-2 text-sm font-medium text-white bg-[var(--mantine-color-blue-6)] rounded-md hover:bg-[var(--mantine-color-blue-7)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--mantine-color-blue-6)] transition duration-200"
               >
                 Log In
               </Link>
             )}
           </div>
+
+          {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
-            <button className="outline-none mobile-menu-button" onClick={() => setIsOpen(!isOpen)}>
+            <button 
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            >
+              <span className="sr-only">Open main menu</span>
               <svg
-                className="w-6 h-6 text-gray-500 hover:text-green-500"
+                className={`${isOpen ? 'hidden' : 'block'} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path d="M4 6h16M4 12h16M4 18h16"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg
+                className={`${isOpen ? 'block' : 'hidden'} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         </div>
       </div>
-      <div className={`${isOpen ? "block" : "hidden"} md:hidden`}>
-        <Link to="/" className="block py-2 px-4 text-sm hover:bg-green-500 hover:text-white transition duration-300">
-          Home
-        </Link>
-        <Link
-          to="/about"
-          className="block py-2 px-4 text-sm hover:bg-green-500 hover:text-white transition duration-300"
-        >
-          About
-        </Link>
-        <Link
-          to="/services"
-          className="block py-2 px-4 text-sm hover:bg-green-500 hover:text-white transition duration-300"
-        >
-          Services
-        </Link>
-        <Link
-          to="/contact"
-          className="block py-2 px-4 text-sm hover:bg-green-500 hover:text-white transition duration-300"
-        >
-          Contact
-        </Link>
-        <Link
-          to="/login"
-          className="block py-2 px-4 text-sm hover:bg-green-500 hover:text-white transition duration-300"
-        >
-          Log In
-        </Link>
-        <Link
-          to="/signup"
-          className="block py-2 px-4 text-sm hover:bg-green-500 hover:text-white transition duration-300"
-        >
-          Sign Up
-        </Link>
+
+      {/* Mobile menu */}
+      <div className={`${isOpen ? 'block' : 'hidden'} md:hidden border-t border-gray-100`}>
+        <div className="pt-2 pb-3 space-y-1">
+          {isAdmin ? (
+            <>
+              <MobileNavLink to="/my-events">All Events</MobileNavLink>
+              <MobileNavLink to="/admin/dashboard">Dashboard</MobileNavLink>
+            </>
+          ) : (
+            currentUser ? (
+              <>
+                <MobileNavLink to="/">Home</MobileNavLink>
+                <MobileNavLink to="/my-events">My Events</MobileNavLink>
+              </>
+            ) : (
+              <>
+                <MobileNavLink to="/">Home</MobileNavLink>
+                <MobileNavLink to="/login">Log In</MobileNavLink>
+              </>
+            )
+          )}
+        </div>
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+// Mobile navigation link component
+const MobileNavLink = ({ to, children }: { to: string; children: React.ReactNode }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+
+  return (
+    <Link
+      to={to}
+      className={`flex items-center px-4 py-2 text-base font-medium transition duration-200 ${
+        isActive
+          ? 'text-[var(--mantine-color-blue-6)] bg-[var(--mantine-color-blue-0)]'
+          : 'text-gray-600 hover:text-[var(--mantine-color-blue-6)] hover:bg-gray-50'
+      }`}
+    >
+      {children}
+      {isActive && <IconCircleFilled size={8} className="ml-2 text-[var(--mantine-color-blue-6)]" />}
+    </Link>
+  );
+};
+
+export default Navbar;
 
