@@ -68,14 +68,15 @@ const CRUDEventsPage = () => {
                     withCredentials: true
                 });
 
-                // Convert Firestore timestamps to Date objects
                 const eventData = response.data;
                 const formattedData = {
                     ...eventData,
                     startDate: eventData.startDate?._seconds ? 
                         new Date(eventData.startDate._seconds * 1000) : null,
                     endDate: eventData.endDate?._seconds ? 
-                        new Date(eventData.endDate._seconds * 1000) : null
+                        new Date(eventData.endDate._seconds * 1000) : null,
+                    imageUrl: eventData.imageUrl || '', 
+                    thumbnail: null 
                 };
 
                 form.setValues(formattedData);

@@ -229,8 +229,9 @@ function EventCard({ event }) {
                 }
             );
             // Refresh the events list or update UI
-            window.location.reload();
             showSuccessNotification('Successfully archived event!');
+            window.location.reload();
+            
         } catch (error) {
             console.error('Archive Error:', error);
             showErrorNotification(error || 'Failed to archive event');

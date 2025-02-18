@@ -120,7 +120,14 @@ router.get('/dashboard/festival', authenticateUser, isAdmin, async (req, res) =>
                 ageGroups: calculateAgeGroups(users),
                 genderDistribution: calculateGenderDistribution(users),
                 budgetPreferences: calculateBudgetPreferences(users),
-                eventCategories: calculateEventCategories(users)
+                eventCategories: calculateEventCategories(users),
+                attendees: users.map(user => ({
+                    id: user.id,
+                    name: user.name,
+                    age: user.age,
+                    gender: user.gender,
+                    budgetPreference: user.budgetPreference
+                }))
             },
             eventStats: {
                 totalEvents: events.length,
