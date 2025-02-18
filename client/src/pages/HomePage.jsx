@@ -18,14 +18,20 @@ const HomePage = () => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get("http://localhost:5500/api/events")
-        setEvents(response.data)
+        // Sort events by start date
+        const sortedEvents = response.data.sort((a, b) => {
+          const dateA = a.startDate._seconds * 1000;
+          const dateB = b.startDate._seconds * 1000;
+          return dateA - dateB; // Ascending order (earliest first)
+        });
+        setEvents(sortedEvents)
         setLoading(false)
       } catch (err) {
         setError("Failed to fetch events")
         setLoading(false)
       }
     }
-
+  
     fetchEvents()
   }, [])
 

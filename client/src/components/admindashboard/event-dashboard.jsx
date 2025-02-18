@@ -113,7 +113,7 @@ function EventDashboard({ events }) {
                 <Card shadow="sm" withBorder radius={12} padding={16}>
                     <Text size="sm" c="dimmed" mb={12}>Average Rating</Text>
                     <Group>
-                        <Text size="xl" fw={700}>{eventStats.ratings.average}</Text>
+                        <Text size="xl" fw={700}>{eventStats.ratings.average.toFixed(2)}</Text>
                         <Rating value={eventStats.ratings.average} readOnly fractions={2} size="sm" />
                     </Group>
                 </Card>
@@ -121,7 +121,7 @@ function EventDashboard({ events }) {
                 <Card shadow="sm" withBorder radius={12} padding={16}>
                     <Text size="sm" c="dimmed" mb={12}>Average Recommendation</Text>
                     <Group>
-                        <Text size="xl" fw={700}>{eventStats.ratings.recommendation}</Text>
+                        <Text size="xl" fw={700}>{eventStats.ratings.recommendation.toFixed(2)}</Text>
                         <Rating value={eventStats.ratings.recommendation} readOnly fractions={2} size="sm" />
                     </Group>
                 </Card>

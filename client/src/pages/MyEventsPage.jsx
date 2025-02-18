@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import EventCard from '../components/eventcard/event-card';
-import { Card, Image, Text, Badge, Button, Group, Modal, Table, Divider } from '@mantine/core';
-import { IconPlus, IconUsers } from '@tabler/icons-react';
+import { Card, Image, Text, Badge, Button, Group, Modal, Table, Divider, Title } from '@mantine/core';
+import { IconPlus, IconUsers, IconCalendarX } from '@tabler/icons-react';
 import { Link, useNavigate } from "react-router-dom"
 
 const MyEventsPage = () => {
@@ -52,18 +52,40 @@ const MyEventsPage = () => {
             }
             setLoading(true);
             try {
-                const idToken = await currentUser.getIdToken(true); // Force refresh
+                const idToken = await currentUser.getIdToken(true);
                 const endpoint = isAdmin ? 
                     'http://localhost:5500/api/admin/events' : 
                     'http://localhost:5500/api/events/my-events';
-    
+
                 const response = await axios.get(endpoint, {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
                     },
                     withCredentials: true
                 });
-                setMyEvents(response.data);
+                
+                // Sort events by start date
+                const sortedEvents = response.data.sort((a, b) => {
+                    const dateA = a.startDate._seconds * 1000;
+                    const dateB = b.startDate._seconds * 1000;
+                    const now = Date.now();
+                    
+                    // Check if events are completed (end date has passed)
+                    const isCompletedA = (a.endDate._seconds * 1000) < now;
+                    const isCompletedB = (b.endDate._seconds * 1000) < now;
+                    
+                    // If one is completed and the other isn't, put completed at the end
+                    if (isCompletedA && !isCompletedB) return 1;
+                    if (!isCompletedA && isCompletedB) return -1;
+                    
+                    // If both are completed or both are upcoming, sort by closest to now
+                    const diffA = Math.abs(dateA - now);
+                    const diffB = Math.abs(dateB - now);
+                    
+                    return diffA - diffB;
+                });
+
+                setMyEvents(sortedEvents);
             } catch (error) {
                 console.error('Fetch Events Error:', error);
                 setError('Failed to fetch events');
@@ -71,7 +93,7 @@ const MyEventsPage = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchEvents();
     }, [isAdmin, currentUser, adminCheckComplete]);
 
@@ -96,6 +118,43 @@ const MyEventsPage = () => {
             setLoadingAttendees(false);
         }
     };
+
+    const NoEventsPlaceholder = ({ isAdmin }) => (
+        <Card 
+            shadow="sm" 
+            padding="xl" 
+            radius="md" 
+            withBorder 
+            className="flex flex-col items-center"
+        >
+            <IconCalendarX 
+                size={48} 
+                className="text-[var(--mantine-color-blue-6)] mb-4" 
+            />
+            <Title order={2} mb="xs">
+                {isAdmin ? 'No Events Created Yet' : 'No Events Found'}
+            </Title>
+            <Text 
+                c="dimmed" 
+                size="sm" 
+                ta="center" 
+                maw={400} 
+                mb="md"
+            >
+                {isAdmin 
+                    ? 'Get started by creating your first event for the festival.'
+                    : 'Browse available events and RSVP to see them here.'}
+            </Text>
+            <Button
+                component={Link}
+                to={isAdmin ? "/events/new" : "/"}
+                variant="light"
+                color="blue"
+            >
+                {isAdmin ? 'Create First Event' : 'Browse Events'}
+            </Button>
+        </Card>
+    );
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
@@ -128,9 +187,15 @@ const MyEventsPage = () => {
                 )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {myEvents.map(event => (
-                    <EventCard key={event.id} event={event} />
-                ))}
+                {myEvents.length > 0 ? (
+                    myEvents.map(event => (
+                        <EventCard key={event.id} event={event} />
+                    ))
+                ) : (
+                    <div className="col-span-full">
+                        <NoEventsPlaceholder isAdmin={isAdmin} />
+                    </div>
+                )}
             </div>
 
             {/* Attendees Modal */}

@@ -207,7 +207,7 @@ const CRUDEventsPage = () => {
                             label="Category"
                             required
                             placeholder="Select event category"
-                            data={['Art', 'Fashion', 'Beer', 'Food', 'Music']}
+                            data={['Art', 'Fashion', 'Performance', 'Food', 'Music']}
                             {...form.getInputProps('category')}
                         />
 

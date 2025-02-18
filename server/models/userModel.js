@@ -26,7 +26,9 @@ class UserModel {
 
     static async getAllUsers() {
         try {
-            const userSnapshot = await db.collection('users').get();
+            const userSnapshot = await db.collection('users')
+                .where('role', '!=', 'admin') // Filter out admin user
+                .get();
 
             const users = [];
 

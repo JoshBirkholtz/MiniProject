@@ -13,13 +13,22 @@ class AuthController {
             const decodedToken = await admin.auth().verifyIdToken(idToken);
             const uid = decodedToken.uid;
 
+            // Check if email is admin@gmail.com
+            const isAdmin = req.body.email === 'admin@gmail.com';
+            
             const userData = {
                 ...req.body,
-                role: 'visitor'
+                role: isAdmin ? 'admin' : 'visitor'
             };
 
             await UserModel.createUser(uid, userData);
-            await admin.auth().setCustomUserClaims(uid, { role: 'visitor' });
+            
+            // Set custom claims based on role
+            if (isAdmin) {
+                await admin.auth().setCustomUserClaims(uid, { admin: true });
+            } else {
+                await admin.auth().setCustomUserClaims(uid, { role: 'visitor' });
+            }
 
             const expiresIn = 60 * 60 * 24 * 5 * 1000;
             const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
@@ -31,7 +40,10 @@ class AuthController {
                 sameSite: 'strict'
             });
             
-            res.status(201).json({ message: 'User registered successfully' });
+            res.status(201).json({ 
+                message: 'User registered successfully',
+                role: isAdmin ? 'admin' : 'visitor'
+            });
         } catch (error) {
             console.error('Registration Error:', error);
             res.status(500).json({ error: 'Registration failed' });

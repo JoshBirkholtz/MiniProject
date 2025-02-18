@@ -108,7 +108,7 @@ function FestivalDashboard() {
         return Object.entries(categories)
             .map(([category, attendees], index) => ({
                 name: category,
-                value: (attendees / total) * 100, // Convert to percentage
+                value: Number(((attendees / total) * 100).toFixed(2)),
                 color: colors[index % colors.length]
             }));
     };
@@ -261,13 +261,13 @@ function FestivalDashboard() {
                             </Table>
                         </Card>
 
-                        <Card shadow="sm" withBorder radius={12} padding={16}>
+                        <Card shadow="sm" withBorder radius={12}>
                             <Text fw={700} mb="xs">Attendance by Category</Text>
-                            <Container>
+                            <Container mb={8}>
                                 <RadialBarChart 
                                     data={categoryAttendanceData} 
                                     dataKey="value" 
-                                    h={250}
+                                    h={300}
                                     w={250} 
                                     withLegend
                                 />

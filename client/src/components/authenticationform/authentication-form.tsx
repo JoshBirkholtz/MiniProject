@@ -262,7 +262,7 @@ function AuthenticationForm(props: PaperProps) {
                             <MultiSelect
                                 label="Your favorite event categories"
                                 placeholder="Pick value"
-                                data={['Art', 'Fashion', 'Beer', 'Food', 'Music']}
+                                data={['Art', 'Fashion', 'Performace', 'Food', 'Music']}
                                 {...form.getInputProps('eventCategories')}
                             />
                             <Checkbox
