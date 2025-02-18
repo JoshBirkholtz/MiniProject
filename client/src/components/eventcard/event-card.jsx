@@ -1,4 +1,4 @@
-import { Card, Image, Text, Badge, Button, Group, Divider, Menu, Notification, Modal } from '@mantine/core';
+import { Card, Image, Text, Badge, Button, Group, Divider, Menu, Notification, Modal, Table } from '@mantine/core';
 import { IconMapPin, IconCalendar, IconCalendarStats, IconCalendarX, IconEdit, IconSettings, IconArchive, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
@@ -488,37 +488,37 @@ function EventCard({ event }) {
                 </Group>
             </Modal>
 
+            {/* Attendees Modal */}
             <Modal
                 opened={attendeesModalOpen}
                 onClose={() => setAttendeesModalOpen(false)}
                 title="Event Attendees"
+                size="lg"
                 centered
             >
                 {loadingAttendees ? (
                     <Text>Loading attendees...</Text>
                 ) : (
-                    attendeesList.length > 0 ? (
-                        <div>
-                            {attendeesList.map((attendee, index) => (
-                                <Group 
-                                    key={attendee.rsvpId} 
-                                    p="sm" 
-                                    style={{
-                                        borderBottom: index !== attendeesList.length - 1 ? '1px solid #eee' : 'none'
-                                    }}
-                                >
-                                    <div>
-                                        <Text>{attendee.name}</Text>
-                                        <Text size="xs" c="dimmed">
-                                            Age: {attendee.age} • {attendee.gender}
-                                        </Text>
-                                    </div>
-                                </Group>
+                    <Table>
+                        <Table.Thead>
+                            <Table.Tr>
+                                <Table.Th>Name</Table.Th>
+                                <Table.Th>Age</Table.Th>
+                                <Table.Th>Gender</Table.Th>
+                                <Table.Th>Budget Preference</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                            {attendeesList.map((attendee) => (
+                                <Table.Tr key={attendee.id}>
+                                    <Table.Td>{attendee.name}</Table.Td>
+                                    <Table.Td>{attendee.age}</Table.Td>
+                                    <Table.Td>{attendee.gender}</Table.Td>
+                                    <Table.Td>{attendee.budgetPreference}</Table.Td>
+                                </Table.Tr>
                             ))}
-                        </div>
-                    ) : (
-                        <Text>No attendees yet</Text>
-                    )
+                        </Table.Tbody>
+                    </Table>
                 )}
             </Modal>
 

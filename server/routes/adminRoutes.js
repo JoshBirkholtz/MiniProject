@@ -158,12 +158,23 @@ router.get('/events/:eventId/stats', authenticateUser, isAdmin, async (req, res)
         // Get event ratings
         const ratings = await RatingModel.getRatingsByEventId(eventId);
 
+        // Get user data for each rating
+        const ratingsWithUserNames = await Promise.all(
+            ratings.map(async (rating) => {
+                const userData = await UserModel.getUserById(rating.userId);
+                return {
+                    ...rating,
+                    userName: userData?.name || 'Anonymous'
+                };
+            })
+        );
+
         // Get event RSVPs with user data
         const attendees = await RSVPModel.getRSVPsWithUserDataByEventId(eventId);
 
         const stats = {
             numRatings: ratings.length,
-            ratings: calculateRatingStats(ratings),
+            ratings: calculateRatingStats(ratingsWithUserNames),
             demographics: calculateAttendeeDemographics(attendees),
             attendees
         };

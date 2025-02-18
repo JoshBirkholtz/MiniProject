@@ -229,7 +229,7 @@ function FestivalDashboard() {
                     </Group>
                 </Card>
 
-                <Card shadow="sm" withBorder radius={12} padding={16} mb={16}>
+                <Card shadow="sm" withBorder radius={12} padding={16} mt={16}>
                     <Title order={3} mb="md">Attendance Analytics</Title>
                     <Group grow>
                     <Card shadow="sm" withBorder radius={12} padding={16}> 

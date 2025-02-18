@@ -135,6 +135,7 @@ function EventDashboard({ events }) {
                     <Group>
                         {eventStats.ratings.comments.map((comment, index) => (
                             <Card shadow="sm" withBorder radius={12} padding={16} key={index}>
+                                <Text size="sm" c="dimmed" mb={12}>{comment.userName}</Text>
                                 <Rating value={comment.rating} readOnly mb="xs" />
                                 <Text>{comment.text}</Text>
                             </Card>

@@ -62,7 +62,9 @@ const calculateRatingStats = (ratings) => {
         recommendationDistribution,
         comments: ratings.map(r => ({
             rating: r.rating,
-            text: r.comment
+            text: r.comment,
+            userId: r.userId,
+            userName: r.userName
         }))
     };
 };
