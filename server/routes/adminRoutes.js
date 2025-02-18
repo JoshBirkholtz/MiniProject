@@ -124,7 +124,15 @@ router.get('/dashboard/festival', authenticateUser, isAdmin, async (req, res) =>
             },
             eventStats: {
                 totalEvents: events.length,
-                totalRSVPs: rsvps.length
+                totalRSVPs: rsvps.length,
+                attendanceByEvent: events.map(event => ({
+                    name: event.name,
+                    currentAttendees: event.currentAttendees || 0
+                })),
+                attendanceByCategory: events.reduce((acc, event) => {
+                    acc[event.category] = (acc[event.category] || 0) + (event.currentAttendees || 0);
+                    return acc;
+                }, {})
             }
         };
 

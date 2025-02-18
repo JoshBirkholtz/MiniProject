@@ -41,17 +41,25 @@ const calculateEventCategories = (users) => {
 };
 
 const calculateRatingStats = (ratings) => {
-    const distribution = {};
-    let sum = 0;
+    const ratingDistribution = {};
+    const recommendationDistribution = {};
+    let ratingSum = 0;
+    let recommendationSum = 0;
     
     ratings.forEach(rating => {
-        distribution[rating.rating] = (distribution[rating.rating] || 0) + 1;
-        sum += rating.rating;
+        ratingDistribution[rating.rating] = (ratingDistribution[rating.rating] || 0) + 1;
+        ratingSum += rating.rating;
+
+        recommendationDistribution[rating.recommendation] = (recommendationDistribution[rating.recommendation] || 0) + 1;
+        recommendationSum += rating.recommendation;
+
     });
 
     return {
-        average: ratings.length ? sum / ratings.length : 0,
-        distribution,
+        average: ratings.length ? ratingSum / ratings.length : 0,
+        recommendation: ratings.length ? recommendationSum / ratings.length : 0,
+        ratingDistribution,
+        recommendationDistribution,
         comments: ratings.map(r => ({
             rating: r.rating,
             text: r.comment

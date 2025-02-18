@@ -3,7 +3,7 @@ import { Card, Text, Group, Stack, Title, Badge, Table, Grid, Container } from '
 import { IconUser, IconStar, IconChartBar, IconUsers, IconCalendarEvent, IconThumbUp } from '@tabler/icons-react';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
-import { BarChart, DonutChart } from '@mantine/charts';
+import { BarChart, DonutChart, RadialBarChart } from '@mantine/charts';
 
 function FestivalDashboard() {
     const { currentUser } = useAuth();
@@ -17,7 +17,9 @@ function FestivalDashboard() {
         },
         eventStats: {
             totalEvents: 0,
-            totalRSVPs: 0
+            totalRSVPs: 0,
+            attendanceByEvent: [], 
+            attendanceByCategory: {} 
         }
     });
 
@@ -85,6 +87,33 @@ function FestivalDashboard() {
                 count
             }));
     };
+
+    const transformEventAttendanceData = (events) => {
+        if (!events) return [];
+        return events
+            .sort((a, b) => b.currentAttendees - a.currentAttendees)
+            .map(event => ({
+                name: event.name,
+                Attendees: event.currentAttendees
+            }));
+    };
+    
+    const transformCategoryAttendanceData = (categories) => {
+        if (!categories) return [];
+        const colors = ['blue.7', 'orange.6', 'yellow.7', 'cyan.6', 'green', 'pink', 'gray'];
+        
+        // Get total for percentage calculation
+        const total = Object.values(categories).reduce((sum, val) => sum + val, 0);
+        
+        return Object.entries(categories)
+            .map(([category, attendees], index) => ({
+                name: category,
+                value: (attendees / total) * 100, // Convert to percentage
+                color: colors[index % colors.length]
+            }));
+    };
+
+    const categoryAttendanceData = transformCategoryAttendanceData(stats.eventStats.attendanceByCategory);
 
     return (
         <div className="p-6">
@@ -197,6 +226,53 @@ function FestivalDashboard() {
                             </Table>
                         </Card>
   
+                    </Group>
+                </Card>
+
+                <Card shadow="sm" withBorder radius={12} padding={16} mb={16}>
+                    <Title order={3} mb="md">Attendance Analytics</Title>
+                    <Group grow>
+                    <Card shadow="sm" withBorder radius={12} padding={16}> 
+                            <Text fw={700} mb="md">Attendance by Event</Text>
+                            <Table verticalSpacing="md" highlightOnHover>
+                                <Table.Tbody>
+                                    {transformEventAttendanceData(stats.eventStats.attendanceByEvent)
+                                        .map((item) => (
+                                            <Table.Tr key={item.name}>
+                                                <Table.Td style={{ 
+                                                    fontSize: '1rem', 
+                                                    color: 'var(--mantine-color-gray-7)'
+                                                }}>
+                                                    {item.name}
+                                                </Table.Td>
+                                                <Table.Td style={{ textAlign: 'right' }}>
+                                                    <Badge 
+                                                        size="lg" 
+                                                        radius="sm"
+                                                        variant="light"
+                                                        color="blue"
+                                                    >
+                                                        {item.Attendees}
+                                                    </Badge>
+                                                </Table.Td>
+                                            </Table.Tr>
+                                        ))}
+                                </Table.Tbody>
+                            </Table>
+                        </Card>
+
+                        <Card shadow="sm" withBorder radius={12} padding={16}>
+                            <Text fw={700} mb="xs">Attendance by Category</Text>
+                            <Container>
+                                <RadialBarChart 
+                                    data={categoryAttendanceData} 
+                                    dataKey="value" 
+                                    h={250}
+                                    w={250} 
+                                    withLegend
+                                />
+                            </Container>
+                        </Card>
                     </Group>
                 </Card>
 

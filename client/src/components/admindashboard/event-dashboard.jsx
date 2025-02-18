@@ -11,6 +11,7 @@ function EventDashboard({ events }) {
         ratings: {
             numRatings: 0,
             average: 0,
+            recommendation: 0,
             distribution: {},
             comments: []
         },
@@ -114,6 +115,14 @@ function EventDashboard({ events }) {
                     <Group>
                         <Text size="xl" fw={700}>{eventStats.ratings.average}</Text>
                         <Rating value={eventStats.ratings.average} readOnly fractions={2} size="sm" />
+                    </Group>
+                </Card>
+
+                <Card shadow="sm" withBorder radius={12} padding={16}>
+                    <Text size="sm" c="dimmed" mb={12}>Average Recommendation</Text>
+                    <Group>
+                        <Text size="xl" fw={700}>{eventStats.ratings.recommendation}</Text>
+                        <Rating value={eventStats.ratings.recommendation} readOnly fractions={2} size="sm" />
                     </Group>
                 </Card>
 
