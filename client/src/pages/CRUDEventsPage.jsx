@@ -12,6 +12,8 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { showSuccessNotification } from '../components/notifications/success-notification';
 import { showErrorNotification } from '../components/notifications/error-notification';
 
+import { API_URL } from "../config/api";
+
 const CRUDEventsPage = () => {
     const { eventId } = useParams();
     const navigate = useNavigate();
@@ -61,7 +63,7 @@ const CRUDEventsPage = () => {
 
             try {
                 const idToken = await currentUser.getIdToken();
-                const response = await axios.get(`http://localhost:5500/api/admin/events/${eventId}`, {
+                const response = await axios.get(`${API_URL}/api/admin/events/${eventId}`, {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
                     },
@@ -123,8 +125,8 @@ const CRUDEventsPage = () => {
 
             const idToken = await currentUser.getIdToken();
             const endpoint = eventId 
-                ? `http://localhost:5500/api/admin/events/${eventId}`
-                : 'http://localhost:5500/api/admin/events';
+                ? `${API_URL}/api/admin/events/${eventId}`
+                : `${API_URL}/api/admin/events`;
             
             const method = eventId ? 'PUT' : 'POST';
             

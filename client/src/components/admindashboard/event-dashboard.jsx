@@ -4,6 +4,8 @@ import { BarChart, DonutChart } from '@mantine/charts';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
+import { API_URL } from "../../config/api";
+
 function EventDashboard({ events }) {
     const { currentUser } = useAuth();
     const [selectedEventId, setSelectedEventId] = useState(null);
@@ -36,7 +38,7 @@ function EventDashboard({ events }) {
             try {
                 const idToken = await currentUser.getIdToken();
                 const response = await axios.get(
-                    `http://localhost:5500/api/admin/events/${selectedEventId}/stats`,
+                    `${API_URL}/api/admin/events/${selectedEventId}/stats`,
                     {
                         headers: {
                             'Authorization': `Bearer ${idToken}`

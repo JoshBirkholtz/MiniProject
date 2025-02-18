@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Tabs, Title, Select } from '@mantine/core';
+import { Tabs, Title } from '@mantine/core';
 import { IconChartBar, IconCalendar } from '@tabler/icons-react';
 import FestivalDashboard from '../components/admindashboard/festival-dashboard';
 import EventDashboard from '../components/admindashboard/event-dashboard';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+
+import { API_URL } from "../config/api";
 
 function DashboardPage() {
     const [events, setEvents] = useState([]);
@@ -19,7 +21,7 @@ function DashboardPage() {
             try {
                 const idToken = await currentUser.getIdToken();
                 const response = await axios.get(
-                    'http://localhost:5500/api/admin/events',
+                    `${API_URL}/api/admin/events`,
                     {
                         headers: {
                             'Authorization': `Bearer ${idToken}`

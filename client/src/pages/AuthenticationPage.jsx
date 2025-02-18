@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom"
 import AuthenticationForm from "../components/authenticationform/authentication-form";
 
 const AuthenticationPage = ({ type }) => {

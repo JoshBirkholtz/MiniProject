@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Rating, Textarea, Button, Stack, Text, Modal, Group } from '@mantine/core';
+import { Rating, Textarea, Button, Stack, Text, Modal } from '@mantine/core';
 
 function RatingModal({ isOpen, onClose, eventId, onSubmit, initialRating = null }) {
     const [rating, setRating] = useState(initialRating?.rating || 0);

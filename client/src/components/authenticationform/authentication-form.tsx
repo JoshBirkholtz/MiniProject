@@ -23,14 +23,14 @@ import {
 import { useForm } from '@mantine/form';
 import { upperFirst, useToggle } from '@mantine/hooks';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Replace useRouter from Next.js
-import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { auth } from '../../config/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 import { showSuccessNotification } from '../notifications/success-notification';
 import { showErrorNotification } from '../notifications/error-notification';
+
+import { API_URL } from "../../config/api";
 
 const genders = ['Male', 'Female', 'Prefer not to say'];
 
@@ -87,7 +87,7 @@ function AuthenticationForm(props: PaperProps) {
                 // Registration flow
                 const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
                 const idToken = await userCredential.user.getIdToken(true); // Force refresh token
-                const response = await fetch('http://localhost:5500/api/auth/register', {
+                const response = await fetch(`${API_URL}/api/auth/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ function AuthenticationForm(props: PaperProps) {
                     // Force refresh the token immediately
                     const idToken = await userCredential.user.getIdToken(true);
 
-                    const response = await fetch('http://localhost:5500/api/auth/login', {
+                    const response = await fetch(`${API_URL}/api/auth/login`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

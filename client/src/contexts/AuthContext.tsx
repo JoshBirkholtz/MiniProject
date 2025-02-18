@@ -3,6 +3,8 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import axios from 'axios';
 
+import { API_URL } from '../config/api';
+
 interface AuthContextType {
     currentUser: User | null;
     loading: boolean;
@@ -21,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const checkSession = async () => {
         try {
-            const response = await axios.get('http://localhost:5500/api/auth/check-session', {
+            const response = await axios.get(`${API_URL}/api/auth/check-session`, {
                 withCredentials: true
             });
             

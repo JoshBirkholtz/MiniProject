@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { Card, Image, Text, Badge, Button, Group, Select } from '@mantine/core';
-import { IconMap, IconCalendarEvent, IconArrowRight } from '@tabler/icons-react';
+import { Badge, Button, Select } from '@mantine/core';
+import { IconMap, IconCalendarEvent } from '@tabler/icons-react';
 import axios from "axios"
 import EventCard from "../components/eventcard/event-card"
 import MapModal from "../components/mapmodal/map-modal"
 
+import { API_URL } from "../config/api";
 
 const HomePage = () => {
   const [events, setEvents] = useState([])
@@ -17,7 +17,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get("http://localhost:5500/api/events")
+        const response = await axios.get(`${API_URL}/api/events`)
         // Sort events by start date
         const sortedEvents = response.data.sort((a, b) => {
           const dateA = a.startDate._seconds * 1000;

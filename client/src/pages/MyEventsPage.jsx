@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import EventCard from '../components/eventcard/event-card';
-import { Card, Image, Text, Badge, Button, Group, Modal, Table, Divider, Title } from '@mantine/core';
+import { Card, Text, Button, Group, Modal, Table, Title } from '@mantine/core';
 import { IconPlus, IconUsers, IconCalendarX } from '@tabler/icons-react';
 import { Link, useNavigate } from "react-router-dom"
+
+import { API_URL } from "../config/api";
 
 const MyEventsPage = () => {
     const [myEvents, setMyEvents] = useState([]);
@@ -54,8 +56,8 @@ const MyEventsPage = () => {
             try {
                 const idToken = await currentUser.getIdToken(true);
                 const endpoint = isAdmin ? 
-                    'http://localhost:5500/api/admin/events' : 
-                    'http://localhost:5500/api/events/my-events';
+                    `${API_URL}/api/admin/events` : 
+                    `${API_URL}/api/events/my-events`;
 
                 const response = await axios.get(endpoint, {
                     headers: {
@@ -102,7 +104,7 @@ const MyEventsPage = () => {
         try {
             const idToken = await currentUser.getIdToken();
             const response = await axios.get(
-                'http://localhost:5500/api/admin/dashboard/festival',
+                `${API_URL}/api/admin/dashboard/festival`,
                 {
                     headers: {
                         'Authorization': `Bearer ${idToken}`

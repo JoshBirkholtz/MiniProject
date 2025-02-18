@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Card, Text, Group, Stack, Title, Badge, Table, Grid, Container } from '@mantine/core';
-import { IconUser, IconStar, IconChartBar, IconUsers, IconCalendarEvent, IconThumbUp } from '@tabler/icons-react';
+import { Card, Text, Group, Stack, Title, Badge, Table, Container } from '@mantine/core';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { BarChart, DonutChart, RadialBarChart } from '@mantine/charts';
+
+import { API_URL } from "../../config/api";
 
 function FestivalDashboard() {
     const { currentUser } = useAuth();
@@ -30,7 +31,7 @@ function FestivalDashboard() {
             try {
                 const idToken = await currentUser.getIdToken();
                 const response = await axios.get(
-                    'http://localhost:5500/api/admin/dashboard/festival',
+                    `${API_URL}/api/admin/dashboard/festival`,
                     {
                         headers: {
                             'Authorization': `Bearer ${idToken}`

@@ -10,6 +10,8 @@ import RatingModal from '../ratingmodal/rating-modal';
 import { showSuccessNotification } from '../notifications/success-notification';
 import { showErrorNotification } from '../notifications/error-notification';
 
+import { API_URL } from "../../config/api";
+
 const formatFirebaseDateTime = (timestamp) => {
     if (!timestamp) return { date: 'TBA', time: 'TBA' };
     const date = new Date(timestamp._seconds * 1000);
@@ -63,7 +65,7 @@ function EventCard({ event }) {
             try {
                 const idToken = await currentUser.getIdToken();
                 const response = await axios.get(
-                    `http://localhost:5500/api/events/${event.id}/check-rsvp`,
+                    `${API_URL}/api/events/${event.id}/check-rsvp`,
                     {
                         headers: {
                             'Authorization': `Bearer ${idToken}`
@@ -88,7 +90,7 @@ function EventCard({ event }) {
             try {
                 const idToken = await currentUser.getIdToken();
                 const response = await axios.get(
-                    `http://localhost:5500/api/events/${event.id}/ratings/${currentUser.uid}`,
+                    `${API_URL}/api/events/${event.id}/ratings/${currentUser.uid}`,
                     {
                         headers: {
                             'Authorization': `Bearer ${idToken}`
@@ -121,7 +123,7 @@ function EventCard({ event }) {
         try {
             const idToken = await currentUser.getIdToken();
             const response = await axios.post(
-                `http://localhost:5500/api/events/${event.id}/rsvp`,
+                `${API_URL}/api/events/${event.id}/rsvp`,
                 {},
                 {
                     headers: {
@@ -158,7 +160,7 @@ function EventCard({ event }) {
         try {
             const idToken = await currentUser.getIdToken();
             const response = await axios.delete(
-                `http://localhost:5500/api/events/${event.id}/rsvp/cancel`,
+                `${API_URL}/api/events/${event.id}/rsvp/cancel`,
                 {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
@@ -196,7 +198,7 @@ function EventCard({ event }) {
         try {
             const idToken = await currentUser.getIdToken();
             await axios.post(
-                `http://localhost:5500/api/events/${event.id}/rate`,
+                `${API_URL}/api/events/${event.id}/rate`,
                 { rating, recommendation, comment },
                 {
                     headers: {
@@ -219,7 +221,7 @@ function EventCard({ event }) {
         try {
             const idToken = await currentUser.getIdToken();
             await axios.patch(
-                `http://localhost:5500/api/admin/events/${event.id}/status`,
+                `${API_URL}/api/admin/events/${event.id}/status`,
                 { status: 'archived' },
                 {
                     headers: {
@@ -242,7 +244,7 @@ function EventCard({ event }) {
         try {
             const idToken = await currentUser.getIdToken();
             await axios.delete(
-                `http://localhost:5500/api/admin/events/${event.id}`,
+                `${API_URL}/api/admin/events/${event.id}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
@@ -264,7 +266,7 @@ function EventCard({ event }) {
         try {
             const idToken = await currentUser?.getIdToken();
             const response = await axios.get(
-                `http://localhost:5500/api/admin/events/${event.id}/stats`,
+                `${API_URL}/api/admin/events/${event.id}/stats`,
                 {
                     headers: {
                         'Authorization': `Bearer ${idToken}`
