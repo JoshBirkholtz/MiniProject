@@ -5,7 +5,7 @@ set -e
 
 # Build frontend
 cd client
-npm install
+npm install --include=dev
 npm run build
 cd ..
 
