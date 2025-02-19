@@ -127,7 +127,31 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-2">
+            {/* User Menu for Mobile */}
+            {currentUser && (
+              <Menu shadow="md" width={200}>
+                <Menu.Target>
+                  <button className="flex items-center justify-center h-10 w-10 rounded-full bg-[var(--mantine-color-blue-1)] hover:bg-[var(--mantine-color-blue-2)] transition-colors duration-200">
+                    <span className="text-[var(--mantine-color-blue-7)] font-medium">
+                      {currentUser.displayName?.[0].toUpperCase() || <IconUser size={20} />}
+                    </span>
+                  </button>
+                </Menu.Target>
+
+                <Menu.Dropdown>
+                  <Menu.Label>{currentUser.email}</Menu.Label>
+                  <Menu.Item
+                    leftSection={<IconLogout size={16} />}
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            )}
+
+            {/* Existing Burger Menu Button */}
             <button 
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
