@@ -5,6 +5,9 @@ import { useState, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext"
 import { IconLogout, IconUser, IconCircleFilled } from '@tabler/icons-react'
+import { Menu } from '@mantine/core';
+
+import { API_URL } from "../../config/api";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,7 +31,7 @@ const Navbar: React.FC = () => {
   const handleLogout = async () => {
     try {
       // Call your logout endpoint
-      await fetch('http://localhost:5500/api/auth/logout', {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });
@@ -94,31 +97,25 @@ const Navbar: React.FC = () => {
 
           <div className="hidden md:flex items-center">
             {currentUser ? (
-              <div className="relative ml-3">
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center justify-center h-10 w-10 rounded-full bg-[var(--mantine-color-blue-1)] hover:bg-[var(--mantine-color-blue-2)] transition-colors duration-200"
-                >
-                  <span className="text-[var(--mantine-color-blue-7)] font-medium">
-                    {currentUser.displayName?.[0].toUpperCase() || <IconUser size={20} />}
-                  </span>
-                </button>
+              <Menu shadow="md" width={200}>
+                <Menu.Target>
+                  <button className="flex items-center justify-center h-10 w-10 rounded-full bg-[var(--mantine-color-blue-1)] hover:bg-[var(--mantine-color-blue-2)] transition-colors duration-200">
+                    <span className="text-[var(--mantine-color-blue-7)] font-medium">
+                      {currentUser.displayName?.[0].toUpperCase() || <IconUser size={20} />}
+                    </span>
+                  </button>
+                </Menu.Target>
 
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                      {currentUser.email}
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center group"
-                    >
-                      <IconLogout size={16} className="mr-2 text-gray-400 group-hover:text-gray-500" />
-                      <span>Logout</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+                <Menu.Dropdown>
+                  <Menu.Label>{currentUser.email}</Menu.Label>
+                  <Menu.Item
+                    leftSection={<IconLogout size={16} />}
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
             ) : (
               <Link
                 to="/login"

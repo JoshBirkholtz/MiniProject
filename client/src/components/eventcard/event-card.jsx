@@ -397,6 +397,8 @@ function EventCard({ event }) {
                         radius="md"
                         leftSection={<IconEdit size={16} />}
                         onClick={handleEditEvent}
+                        disabled={status === 'completed'}
+                        title={status === 'completed' ? 'Cannot edit completed events' : ''}
                     >
                         Edit Event
                     </Button>
@@ -418,6 +420,7 @@ function EventCard({ event }) {
                                 color="yellow"
                                 leftSection={<IconArchive size={16} />}
                                 onClick={handleArchive}
+                                disabled={status === 'archived'}
                             >
                                 Archive Event
                             </Menu.Item>
@@ -431,7 +434,6 @@ function EventCard({ event }) {
                         </Menu.Dropdown>
                     </Menu>
                 </Group>
-                
             ) : (
                 status === 'completed' && hasRSVPd && !userRating ? (
                     <Button
