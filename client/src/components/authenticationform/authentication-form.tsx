@@ -36,7 +36,7 @@ const genders = ['Male', 'Female', 'Prefer not to say'];
 
 function AuthenticationForm(props: PaperProps) {
     const [type, toggle] = useToggle(['login', 'register']);
-    const navigate = useNavigate(); // Replace router with navigate
+    const navigate = useNavigate(); 
     const [error, setError] = useState('');
     const [value, setValue] = useState<string | null>('');
     const [loading, setLoading] = useState(false);

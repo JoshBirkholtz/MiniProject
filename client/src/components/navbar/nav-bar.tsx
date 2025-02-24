@@ -30,7 +30,6 @@ const Navbar: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      // Call your logout endpoint
       await fetch(`${API_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include'

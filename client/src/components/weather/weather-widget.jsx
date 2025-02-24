@@ -1,4 +1,3 @@
-// client/src/components/weather/weather-widget.jsx
 import { Group, Text, Tooltip } from '@mantine/core';
 import { IconSun, IconCloud, IconCloudRain, IconCloudStorm } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';

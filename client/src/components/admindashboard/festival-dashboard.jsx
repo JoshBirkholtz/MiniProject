@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Text, Group, Stack, Title, Badge, Table, Container, Flex } from '@mantine/core';
+import { Card, Text, Group, Stack, Title, Badge, Table, Flex } from '@mantine/core';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { BarChart, DonutChart, RadialBarChart } from '@mantine/charts';
