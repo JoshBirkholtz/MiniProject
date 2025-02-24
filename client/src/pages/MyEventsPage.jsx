@@ -17,7 +17,6 @@ const MyEventsPage = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
 
-    // Add these new states at the top of your component
     const [attendeesModalOpen, setAttendeesModalOpen] = useState(false);
     const [attendeesList, setAttendeesList] = useState([]);
     const [loadingAttendees, setLoadingAttendees] = useState(false);
@@ -168,7 +167,7 @@ const MyEventsPage = () => {
                     {isAdmin ? 'All Events' : 'My Events'}
                 </h1>
                 {isAdmin && (
-                    <Group>
+                    <Group justify="flex-end">
                         <Button
                             onClick={() => {
                                 setAttendeesModalOpen(true);

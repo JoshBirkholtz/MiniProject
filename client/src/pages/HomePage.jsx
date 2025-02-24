@@ -86,7 +86,7 @@ const HomePage = () => {
       <section id="events-section" className="container mx-auto px-12 py-12 bg-white rounded-t-3xl">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold">Upcoming Events</h2>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button
               variant="light"
               onClick={() => setIsMapOpen(true)}
@@ -106,7 +106,7 @@ const HomePage = () => {
                 { value: 'Food', label: 'Food' },
                 { value: 'Music', label: 'Music' }
               ]}
-              clearable  // Add this to allow clearing the selection
+              clearable 
             />
           </div>
         </div>

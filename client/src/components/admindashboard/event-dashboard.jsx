@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Text, Group, Stack, Title, Rating, Table, Select, Container } from '@mantine/core';
+import { Card, Text, Group, Stack, Title, Rating, Table, Select, Flex } from '@mantine/core';
 import { BarChart, DonutChart } from '@mantine/charts';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
@@ -87,8 +87,8 @@ function EventDashboard({ events }) {
 
     return (
         <div className="p-6">
-            <Group justify="space-between" align='top'>
-                <Title order={2} mb="xl">Event Dashboard</Title>
+            <Group justify="space-between" align='top' mb="xl">
+                <Title order={2}>Event Dashboard</Title>
                 <Select
                     placeholder="Pick event"
                     value={selectedEventId || ''}
@@ -100,19 +100,18 @@ function EventDashboard({ events }) {
                 />
             </Group>
 
-            <Group mb="xl" grow position="apart">
-
-                <Card shadow="sm" withBorder radius={12} padding={16}>
+            <Flex direction={{ base: 'column', sm: 'row' }} gap="md" style={{ width: '100%' }} mb={"xl"}>
+                <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}>
                     <Text size="sm" c="dimmed" mb={12}>Total Attendees</Text>
                     <Text size="xl" fw={700}>{eventStats.attendees.length}</Text>
                 </Card>
 
-                <Card shadow="sm" withBorder radius={12} padding={16}>
+                <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}>
                     <Text size="sm" c="dimmed" mb={12}>Total Ratings</Text>
                     <Text size="xl" fw={700}>{eventStats.numRatings}</Text>
                 </Card>
 
-                <Card shadow="sm" withBorder radius={12} padding={16}>
+                <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}>
                     <Text size="sm" c="dimmed" mb={12}>Average Rating</Text>
                     <Group>
                         <Text size="xl" fw={700}>{eventStats.ratings.average.toFixed(2)}</Text>
@@ -120,20 +119,19 @@ function EventDashboard({ events }) {
                     </Group>
                 </Card>
 
-                <Card shadow="sm" withBorder radius={12} padding={16}>
+                <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}>
                     <Text size="sm" c="dimmed" mb={12}>Average Recommendation</Text>
                     <Group>
                         <Text size="xl" fw={700}>{eventStats.ratings.recommendation.toFixed(2)}</Text>
                         <Rating value={eventStats.ratings.recommendation} readOnly fractions={2} size="sm" />
                     </Group>
                 </Card>
-
-            </Group>
+            </Flex>
             
             <Stack spacing="xl">
 
-                <Card shadow="sm" withBorder radius={12} padding={16}>
-                    <Title order={3} mb="md">Attendee Comments</Title>
+                <Card shadow="sm" withBorder radius={12} padding={16} mb={"md"}>
+                    <Title order={3} mb={"md"}>Attendee Comments</Title>
                     <Group>
                         {eventStats.ratings.comments.map((comment, index) => (
                             <Card shadow="sm" withBorder radius={12} padding={16} key={index}>
@@ -147,13 +145,13 @@ function EventDashboard({ events }) {
 
                 <Card shadow="sm" withBorder radius={12} padding={16} mb={16}>
                     <Title order={3} mb="md">Demographics</Title>
-                    <Group grow>
-                        <Card shadow="sm" withBorder radius={12} padding={16}> 
+                    <Flex direction={{ base: 'column', sm: 'row' }} gap="md" style={{ width: '100%' }}>
+                        <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}> 
                             <Text fw={700} mb="xs">Age Distribution</Text>
-                            <Container fluid>
+                            <Flex align="center" justify="center" style={{ width: '100%' }}>
                                 <BarChart
                                     h={300}
-                                    w={300}
+                                    w="100%"
                                     data={ageData}
                                     dataKey="age"
                                     series={[
@@ -164,15 +162,15 @@ function EventDashboard({ events }) {
                                     xAxisLabel="Age Groups"
                                     withTooltip
                                 />
-                            </Container>  
+                            </Flex>  
                         </Card>
-                        <Card shadow="sm" withBorder radius={12} padding={16}>
+                        <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}>
                             <Text fw={700} mb="xs">Gender Distribution</Text>
-                            <Container fluid={true}>
-                                <DonutChart data={genderData} size={250}/>
-                            </Container>
+                            <Flex align="center" justify="center" style={{ width: '100%' }}>
+                                <DonutChart data={genderData} size={250} style={{ width: '100%', maxWidth: '275px' }}/>
+                            </Flex>
                         </Card>
-                    </Group>
+                    </Flex>
                 </Card>
 
                 <Card shadow="sm" withBorder radius={12} padding={16}>

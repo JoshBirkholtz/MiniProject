@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Text, Group, Stack, Title, Badge, Table, Container } from '@mantine/core';
+import { Card, Text, Group, Stack, Title, Badge, Table, Container, Flex } from '@mantine/core';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { BarChart, DonutChart, RadialBarChart } from '@mantine/charts';
@@ -138,38 +138,40 @@ function FestivalDashboard() {
             <Stack spacing="xl">
                 <Card shadow="sm" withBorder radius={12} padding={16} mb={16}>
                     <Title order={3} mb="md">Demographics</Title>
-                    <Group grow>
-                        <Card shadow="sm" withBorder radius={12} padding={16}> 
+                    <Flex direction={{ base: 'column', sm: 'row' }} gap="md" style={{ width: '100%' }}>
+                        <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}> 
                             <Text fw={700} mb="xs">Age Distribution</Text>
-                            <Container fluid>
+                            <Flex align="center" justify="center" style={{ width: '100%' }}>
                                 <BarChart
                                     h={300}
-                                    w={300}
+                                    w="100%"
                                     data={ageData}
                                     dataKey="age"
-                                    series={[
-                                        { name: 'Visitors', color: 'blue.6' }
-                                    ]}
+                                    series={[{ name: 'Visitors', color: 'blue.6' }]}
                                     tickLine="y"
                                     yAxisLabel="Number of Visitors"
                                     xAxisLabel="Age Groups"
                                     withTooltip
                                 />
-                            </Container>  
+                            </Flex>  
                         </Card>
-                        <Card shadow="sm" withBorder radius={12} padding={16}>
+                        <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}>
                             <Text fw={700} mb="xs">Gender Distribution</Text>
-                            <Container fluid={true}>
-                                <DonutChart data={genderData} size={250}/>
-                            </Container>
+                            <Flex align="center" justify="center" style={{ width: '100%' }}>
+                                <DonutChart 
+                                    data={genderData} 
+                                    size={250}
+                                    style={{ width: '100%', maxWidth: '275px' }}
+                                />
+                            </Flex>
                         </Card>
-                    </Group>
+                    </Flex>
                 </Card>
 
                 <Card shadow="sm" withBorder radius={12} padding={16}>
                     <Title order={3} mb="md">Preferences</Title>
-                    <Group grow>
-                        <Card shadow="sm" withBorder radius={12} padding={16}> 
+                    <Flex direction={{ base: 'column', sm: 'row' }} gap="md" style={{ width: '100%' }}>
+                        <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}> 
                             <Text fw={700} mb="md">Budget</Text>
                             <Table verticalSpacing="md" highlightOnHover>
                                 <Table.Tbody>
@@ -198,7 +200,7 @@ function FestivalDashboard() {
                             </Table>
                         </Card>
 
-                        <Card shadow="sm" withBorder radius={12} padding={16}> 
+                        <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}> 
                             <Text fw={700} mb="md">Category</Text>
                             <Table verticalSpacing="md" highlightOnHover>
                                 <Table.Tbody>
@@ -227,13 +229,13 @@ function FestivalDashboard() {
                             </Table>
                         </Card>
   
-                    </Group>
+                    </Flex>
                 </Card>
 
                 <Card shadow="sm" withBorder radius={12} padding={16} mt={16}>
                     <Title order={3} mb="md">Attendance Analytics</Title>
-                    <Group grow>
-                    <Card shadow="sm" withBorder radius={12} padding={16}> 
+                    <Flex direction={{ base: 'column', sm: 'row' }} gap="md" style={{ width: '100%' }}>
+                        <Card shadow="sm" withBorder radius={12} padding={16} style={{ flex: 1, width: '100%' }}> 
                             <Text fw={700} mb="md">Attendance by Event</Text>
                             <Table verticalSpacing="md" highlightOnHover>
                                 <Table.Tbody>
@@ -262,19 +264,20 @@ function FestivalDashboard() {
                             </Table>
                         </Card>
 
-                        <Card shadow="sm" withBorder radius={12}>
-                            <Text fw={700} mb="xs">Attendance by Category</Text>
-                            <Container mb={8}>
+                        <Card shadow="sm" withBorder radius={12} style={{ flex: 1, width: '100%' }}>
+                            <Text fw={700}>Attendance by Category</Text>
+                            <Flex align="center" justify="center" style={{ width: '100%' }}>
                                 <RadialBarChart 
                                     data={categoryAttendanceData} 
                                     dataKey="value" 
                                     h={300}
-                                    w={250} 
+                                    w="100%"
                                     withLegend
+                                    style={{ width: '100%'}}
                                 />
-                            </Container>
+                            </Flex>
                         </Card>
-                    </Group>
+                    </Flex>
                 </Card>
 
             </Stack>
