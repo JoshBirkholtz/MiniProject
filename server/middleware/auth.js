@@ -1,6 +1,11 @@
-// middleware/auth.js
 const admin = require('../config/firebase-config');
 
+/**
+ * Authentication Middleware
+ * Verifies Firebase ID token in request header
+ * Attaches decoded user data to request object
+ * Required for protected routes
+ */
 const authenticateUser = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split('Bearer ')[1];
@@ -16,6 +21,12 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
+/**
+ * Admin Authorization Middleware
+ * Verifies user has admin privileges via Firebase custom claims
+ * Must be used after authenticateUser middleware
+ * Required for admin-only routes
+ */
 const isAdmin = async (req, res, next) => {
   try {
       const { user } = req;

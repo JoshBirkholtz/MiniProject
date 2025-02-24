@@ -6,7 +6,16 @@ const EventModel = require('../models/eventModel');
 const RSVPModel = require('../models/rsvpModel');
 const RatingModel = require('../models/ratingModel');
 
-// Get all events (public route)
+/**
+ * Event Routes
+ * Handles event management, RSVPs, and ratings
+ */
+
+/**
+ * GET /events
+ * Public route that retrieves all published events
+ * Returns array of event objects with basic details
+ */
 router.get('/', async (req, res) => {
     try {
         const events = await EventModel.getAllEvents();
@@ -17,7 +26,11 @@ router.get('/', async (req, res) => {
     }
 });
 
-// RSVP to an event (protected route)
+/**
+ * POST /events/:eventId/rsvp
+ * Allows authenticated users to RSVP for an event
+ * Requires user authentication
+ */
 router.post('/:eventId/rsvp', authenticateUser, async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -31,7 +44,11 @@ router.post('/:eventId/rsvp', authenticateUser, async (req, res) => {
     }
 });
 
-// Cancel RSVP
+/**
+ * DELETE /events/:eventId/rsvp/cancel
+ * Allows users to cancel their event RSVP
+ * Requires user authentication
+ */
 router.delete('/:eventId/rsvp/cancel', authenticateUser, async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -45,7 +62,11 @@ router.delete('/:eventId/rsvp/cancel', authenticateUser, async (req, res) => {
     }
 });
 
-// Check if user has RSVP'd to an event
+/**
+ * GET /events/:eventId/check-rsvp
+ * Checks if user has already RSVP'd to an event
+ * Requires user authentication
+ */
 router.get('/:eventId/check-rsvp', authenticateUser, async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -59,7 +80,11 @@ router.get('/:eventId/check-rsvp', authenticateUser, async (req, res) => {
     }
 });
 
-// Get user's RSVPed events
+/**
+ * GET /events/my-events
+ * Retrieves all events a user has RSVP'd to
+ * Requires user authentication
+ */
 router.get('/my-events', authenticateUser, async (req, res) => {
     try {
         const userId = req.user.uid;
@@ -71,7 +96,11 @@ router.get('/my-events', authenticateUser, async (req, res) => {
     }
 });
 
-// User rates a completed event
+/**
+ * POST /events/:eventId/rate
+ * Allows users to rate and review completed events
+ * Requires user authentication and prior RSVP
+ */
 router.post('/:eventId/rate', authenticateUser, async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -105,7 +134,11 @@ router.post('/:eventId/rate', authenticateUser, async (req, res) => {
     }
 });
 
-// Get ratings by eventId
+/**
+ * GET /events/:eventId/ratings
+ * Retrieves all ratings for a specific event
+ * Public route
+ */
 router.get('/:eventId/ratings', async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -117,7 +150,11 @@ router.get('/:eventId/ratings', async (req, res) => {
     }
 });
 
-// Get user's rating for an event
+/**
+ * GET /events/:eventId/ratings/:userId
+ * Retrieves a user's specific rating for an event
+ * Requires user authentication and must be the rating owner
+ */
 router.get('/:eventId/ratings/:userId', authenticateUser, async (req, res) => {
     try {
         const { eventId, userId } = req.params;

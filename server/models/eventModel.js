@@ -6,6 +6,10 @@ const EmailService = require('../utils/emailService');
 const UserModel = require('../models/userModel');
 
 class EventModel {
+    /**
+     * Retrieves all active events from the database
+     * Automatically updates event statuses before fetching
+     */
     static async getAllEvents() {
         try {
             // Update any events that should be marked as completed
@@ -25,6 +29,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Retrieves all events (including archived) for admin view
+     * Automatically updates event statuses before fetching
+     */
     static async getAllEventsAdmin() {
         try {
             // Update any events that should be marked as completed
@@ -43,6 +51,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Creates a new event with provided data
+     * Handles image upload and location data formatting
+     */
     static async createEvent(eventData) {
         try {
             // Ensure both start and end dates are provided
@@ -71,6 +83,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Deletes an event and all associated data
+     * Includes cleanup of RSVPs and event images
+     */
     static async deleteEvent(eventId) {
         try {
             // Get event data and check if it exists
@@ -117,6 +133,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Processes user RSVP for an event
+     * Handles attendance count, email confirmation, and capacity checks
+     */
     static async rsvpToEvent(eventId, userId) {
         try {
 
@@ -168,6 +188,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Updates status of events based on end dates
+     * Marks events as completed if end date has passed
+     */
     static async updateEventStatuses() {
         try {
             const now = admin.firestore.Timestamp.now();
@@ -195,6 +219,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Retrieves all events a user has RSVP'd to
+     * Filters out archived events and updates statuses
+     */
     static async getEventsByUserId(userId) {
         try {
             // Get all RSVPs for this user
@@ -215,6 +243,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Retrieves detailed information for a specific event
+     * Returns null if event doesn't exist
+     */
     static async getEventById(eventId) {
         try {
             const eventDoc = await db.collection('events').doc(eventId).get();
@@ -227,6 +259,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Updates event details including location and dates
+     * Handles timestamp conversions and data formatting
+     */
     static async updateEvent(eventId, eventData) {
         try {
             const eventRef = db.collection('events').doc(eventId);
@@ -258,6 +294,10 @@ class EventModel {
         }
     }
 
+    /**
+     * Updates event status (active/archived/completed)
+     * Records update timestamp
+     */
     static async updateEventStatus(eventId, status) {
         try {
             await db.collection('events').doc(eventId).update({

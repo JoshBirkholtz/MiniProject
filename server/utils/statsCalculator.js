@@ -1,3 +1,7 @@
+/**
+ * Groups users into age brackets and returns the count for each age group
+ * Age groups: 18-24, 25-34, 35-44, 45+
+ */
 const calculateAgeGroups = (users) => {
     const groups = {
         '18-24': 0,
@@ -16,6 +20,10 @@ const calculateAgeGroups = (users) => {
     return groups;
 };
 
+/**
+ * Calculates the distribution of users by gender
+ * Returns an object with gender as key and count as value
+ */
 const calculateGenderDistribution = (users) => {
     return users.reduce((acc, user) => {
         acc[user.gender] = (acc[user.gender] || 0) + 1;
@@ -23,6 +31,10 @@ const calculateGenderDistribution = (users) => {
     }, {});
 };
 
+/**
+ * Calculates the distribution of users' budget preferences
+ * Returns an object with budget range as key and count as value
+ */
 const calculateBudgetPreferences = (users) => {
     return users.reduce((acc, user) => {
         acc[user.budgetPreference] = (acc[user.budgetPreference] || 0) + 1;
@@ -30,6 +42,10 @@ const calculateBudgetPreferences = (users) => {
     }, {});
 };
 
+/**
+ * Tallies the number of users interested in each event category
+ * Returns an object with category as key and interested user count as value
+ */
 const calculateEventCategories = (users) => {
     const categories = {};
     users.forEach(user => {
@@ -40,6 +56,13 @@ const calculateEventCategories = (users) => {
     return categories;
 };
 
+/**
+ * Processes event ratings to calculate statistics including:
+ * - Average rating
+ * - Average recommendation score
+ * - Distribution of ratings and recommendations
+ * - User comments with associated metadata
+ */
 const calculateRatingStats = (ratings) => {
     const ratingDistribution = {};
     const recommendationDistribution = {};
@@ -69,6 +92,10 @@ const calculateRatingStats = (ratings) => {
     };
 };
 
+/**
+ * Combines demographic calculations for event attendees
+ * Returns age groups, gender distribution, and budget preferences
+ */
 const calculateAttendeeDemographics = (attendees) => {
     return {
         ageGroups: calculateAgeGroups(attendees),

@@ -15,7 +15,16 @@ const {
     calculateAttendeeDemographics
 } = require('../utils/statsCalculator');
 
-// Create a new event (admin only)
+/**
+ * Admin Routes for Event Management System
+ * All routes require authentication and admin privileges
+ */
+
+/**
+ * POST /admin/events
+ * Creates a new event with provided details
+ * Requires admin authentication
+ */
 router.post('/events', authenticateUser, isAdmin, async (req, res) => {
     try {
         const eventId = await EventModel.createEvent(req.body);
@@ -26,7 +35,11 @@ router.post('/events', authenticateUser, isAdmin, async (req, res) => {
     }
 });
 
-// Get a single event
+/**
+ * GET /admin/events/:eventId
+ * Retrieves detailed information for a specific event
+ * Requires admin authentication
+ */
 router.get('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -41,7 +54,11 @@ router.get('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
     }
 });
 
-// Get admin dashboard data
+/**
+ * GET /admin/dashboard
+ * Retrieves general admin dashboard data
+ * Requires admin authentication
+ */
 router.get('/dashboard', authenticateUser, isAdmin, async (req, res) => {
     try {
         // Add your dashboard data retrieval logic here
@@ -52,7 +69,11 @@ router.get('/dashboard', authenticateUser, isAdmin, async (req, res) => {
     }
 });
 
-// Display all events
+/**
+ * GET /admin/events
+ * Lists all events with admin-specific details
+ * Requires admin authentication
+ */
 router.get('/events', authenticateUser, isAdmin, async (req, res) => {
     try {
         const events = await EventModel.getAllEventsAdmin();
@@ -63,7 +84,11 @@ router.get('/events', authenticateUser, isAdmin, async (req, res) => {
     }
 });
 
-// Update an event
+/**
+ * PUT /admin/events/:eventId
+ * Updates an existing event's details
+ * Requires admin authentication
+ */
 router.put('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -76,7 +101,11 @@ router.put('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
     }
 });
 
-// Delete an event
+/**
+ * DELETE /admin/events/:eventId
+ * Removes an event from the system
+ * Requires admin authentication
+ */
 router.delete('/events/:eventId', authenticateUser, isAdmin, async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -88,7 +117,11 @@ router.delete('/events/:eventId', authenticateUser, isAdmin, async (req, res) =>
     }
 });
 
-// Archive/unarchive an event
+/**
+ * PATCH /admin/events/:eventId/status
+ * Updates event status (archive/unarchive)
+ * Requires admin authentication
+ */
 router.patch('/events/:eventId/status', authenticateUser, isAdmin, async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -101,7 +134,14 @@ router.patch('/events/:eventId/status', authenticateUser, isAdmin, async (req, r
     }
 });
 
-// Get festival dashboard data
+/**
+ * GET /admin/dashboard/festival
+ * Retrieves comprehensive festival statistics including:
+ * - User demographics
+ * - Event statistics
+ * - Attendance data
+ * Requires admin authentication
+ */
 router.get('/dashboard/festival', authenticateUser, isAdmin, async (req, res) => {
     try {
         // Get all users
@@ -150,7 +190,14 @@ router.get('/dashboard/festival', authenticateUser, isAdmin, async (req, res) =>
     }
 });
 
-// Get event-specific dashboard data
+/**
+ * GET /admin/events/:eventId/stats
+ * Retrieves detailed statistics for a specific event:
+ * - Ratings and reviews
+ * - Attendee demographics
+ * - User feedback
+ * Requires admin authentication
+ */
 router.get('/events/:eventId/stats', authenticateUser, isAdmin, async (req, res) => {
     try {
         const { eventId } = req.params;

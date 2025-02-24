@@ -3,6 +3,11 @@ const admin = require('../config/firebase-config');
 const db = admin.firestore();
 
 class RatingModel {
+    /**
+     * Creates a new rating for an event
+     * Stores rating score, recommendation, and user comment
+     * Returns the new rating document ID
+     */
     static async createRating(eventId, userId, rating, recommendation, comment) {
         try {
             const ratingRef = db.collection('ratings').doc();
@@ -20,6 +25,10 @@ class RatingModel {
         }
     }
 
+    /**
+     * Retrieves all ratings for a specific event
+     * Returns array of rating objects with user feedback
+     */
     static async getRatingsByEventId(eventId) {
         try {
             const snapshot = await db.collection('ratings')
@@ -36,6 +45,10 @@ class RatingModel {
         }
     }
 
+    /**
+     * Retrieves a user's rating for a specific event
+     * Returns null if no rating exists
+     */
     static async getUserRatingForEvent(userId, eventId) {
         try {
             const snapshot = await db.collection('ratings')

@@ -160,8 +160,7 @@ Password: Admin123
 
 The application is deployed on Render:
 
-- Frontend: [https://cape-town-festivals.onrender.com](https://cape-town-festivals.onrender.com)
-- Backend API: [https://cape-town-festivals-api.onrender.com](https://cape-town-festivals-api.onrender.com)
+- Frontend + Backend: [https://cape-town-festivals.onrender.com](https://cape-town-festivals.onrender.com)
 
 ## License
 

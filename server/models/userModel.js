@@ -3,6 +3,11 @@ const admin = require('../config/firebase-config');
 const db = admin.firestore();
 
 class UserModel {
+    /**
+     * Creates a new user profile in Firestore
+     * Stores user data and adds server timestamp
+     * Returns true on successful creation
+     */
     static async createUser(uid, userData) {
         try {
             await db.collection('users').doc(uid).set({
@@ -15,6 +20,10 @@ class UserModel {
         }
     }
 
+    /**
+     * Retrieves user profile by Firebase UID
+     * Returns null if user doesn't exist
+     */
     static async getUserById(uid) {
         try {
             const userDoc = await db.collection('users').doc(uid).get();
@@ -24,6 +33,10 @@ class UserModel {
         }
     }
 
+    /**
+     * Retrieves all non-admin users in the system
+     * Returns array of user profiles with IDs
+     */
     static async getAllUsers() {
         try {
             const userSnapshot = await db.collection('users')

@@ -7,6 +7,11 @@ router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
 router.post('/logout', AuthController.logout);
 
+/**
+ * GET /auth/check-session
+ * Validates user's session cookie
+ * Returns session validity status and user claims
+ */
 router.get('/check-session', async (req, res) => {
     try {
         const sessionCookie = req.cookies.session || '';

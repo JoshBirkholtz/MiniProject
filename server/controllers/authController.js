@@ -3,6 +3,11 @@ const admin = require('../config/firebase-config');
 const UserModel = require('../models/userModel');
 
 class AuthController {
+    /**
+     * Handles new user registration
+     * Verifies Firebase token, creates user profile, and sets role-based claims
+     * Creates session cookie for authenticated state
+     */
     static async register(req, res) {
         try {
             const idToken = req.headers.authorization?.split('Bearer ')[1];
@@ -50,6 +55,11 @@ class AuthController {
         }
     }
 
+    /**
+     * Handles user login authentication
+     * Verifies token, checks user role, refreshes claims if needed
+     * Creates new session cookie with 5-day expiration
+     */
     static async login(req, res) {
         try {
             const idToken = req.headers.authorization?.split('Bearer ')[1];
@@ -113,6 +123,11 @@ class AuthController {
         }
     }
 
+    /**
+     * Handles user logout
+     * Clears session cookie and terminates user session
+     * Returns success message on completion
+     */
     static async logout(req, res) {
         try {
             // Clear the session cookie

@@ -3,6 +3,10 @@ const admin = require('../config/firebase-config');
 const db = admin.firestore();
 
 class RSVPModel {
+    /**
+     * Creates a new RSVP record for a user and event
+     * Returns the new RSVP document ID
+     */
     static async createRSVP(userId, eventId) {
         try {
             const rsvpRef = db.collection('rsvps').doc();
@@ -18,6 +22,10 @@ class RSVPModel {
         }
     }
 
+    /**
+     * Retrieves all RSVPs for a specific event
+     * Returns array of RSVP objects
+     */
     static async getRSVPsByEventId(eventId) {
         try {
             const snapshot = await db.collection('rsvps')
@@ -34,6 +42,10 @@ class RSVPModel {
         }
     }
 
+    /**
+     * Retrieves all RSVPs for a specific user
+     * Returns array of RSVP objects
+     */
     static async getRSVPsByUserId(userId) {
         try {
             const snapshot = await db.collection('rsvps')
@@ -50,6 +62,10 @@ class RSVPModel {
         }
     }
 
+    /**
+     * Checks if a user has RSVP'd to a specific event
+     * Returns boolean indicating RSVP status
+     */
     static async checkUserRSVP(userId, eventId) {
         try {
             const snapshot = await db.collection('rsvps')
@@ -63,6 +79,10 @@ class RSVPModel {
         }
     }
 
+    /**
+     * Retrieves specific RSVP details for a user and event
+     * Returns null if no RSVP exists
+     */
     static async getRSVP(userId, eventId) {
         try {
             const snapshot = await db.collection('rsvps')
@@ -85,6 +105,10 @@ class RSVPModel {
         }
     }
 
+    /**
+     * Deletes an RSVP record
+     * Returns true on successful deletion
+     */
     static async deleteRSVP(userId, eventId) {
         try {
             const rsvp = await this.getRSVP(userId, eventId);
@@ -99,6 +123,10 @@ class RSVPModel {
         }
     }
 
+    /**
+     * Cancels an RSVP and updates event attendance count
+     * Uses transaction to ensure data consistency
+     */
     static async cancelRSVP(eventId, userId) {
         try {
             const rsvp = await this.getRSVP(userId, eventId);
@@ -131,6 +159,10 @@ class RSVPModel {
         }
     }
 
+    /**
+     * Retrieves all RSVPs in the system
+     * Returns array of all RSVP records
+     */
     static async getAllRSVPs() {
         try {
             const rsvpSnapshot = await db.collection('rsvps').get();
@@ -148,6 +180,10 @@ class RSVPModel {
         }
     }
 
+    /**
+     * Gets RSVPs for an event with detailed user information
+     * Returns array of RSVP records with user profiles
+     */
     static async getRSVPsWithUserDataByEventId(eventId) {
         try {
             const rsvpsSnapshot = await db.collection('rsvps')

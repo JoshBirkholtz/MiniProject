@@ -4,11 +4,15 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_APP_PASSWORD // Use Gmail App Password
+        pass: process.env.EMAIL_APP_PASSWORD
     }
 });
 
 class EmailService {
+    /**
+     * Sends an email confirmation to a user after they RSVP to an event
+     * Includes event name, date, time, and location details
+     */
     static async sendRSVPConfirmation(userEmail, eventName, eventDetails) {
         try {
             await transporter.sendMail({
@@ -30,6 +34,10 @@ class EmailService {
         }
     }
 
+    /**
+     * Sends a reminder email to users the day before their RSVP'd event
+     * Includes event name, time, and location details
+     */
     static async sendEventReminder(userEmail, eventName, eventDetails) {
         try {
             await transporter.sendMail({
