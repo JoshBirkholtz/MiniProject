@@ -397,7 +397,7 @@ function EventCard({ event }) {
                         radius="md"
                         leftSection={<IconEdit size={16} />}
                         onClick={handleEditEvent}
-                        disabled={status === 'completed'}
+                        disabled={status === 'completed' || status === 'archived'}
                         title={status === 'completed' ? 'Cannot edit completed events' : ''}
                     >
                         Edit Event
